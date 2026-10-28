@@ -21,7 +21,7 @@ import {
 } from 'recharts';
 import { Language, ProductPerformanceItem, CategoryPerformanceItem } from '../types';
 import { getT } from '../i18n';
-import { api } from '../services/api';
+import { api, API_BASE } from '../services/api';
 
 interface SalesAnalyticsPageProps {
   language: Language;
@@ -49,8 +49,8 @@ export const SalesAnalyticsPage: React.FC<SalesAnalyticsPageProps> = ({ language
       ]);
 
       // fetch hourly and comparison
-      const hourlyRes = await fetch('http://localhost:8000/api/sales/hourly?range_key=7d').then(r => r.json());
-      const compareRes = await fetch('http://localhost:8000/api/sales/compare').then(r => r.json());
+      const hourlyRes = await fetch(`${API_BASE}/sales/hourly?range_key=7d`).then(r => r.json());
+      const compareRes = await fetch(`${API_BASE}/sales/compare`).then(r => r.json());
       const catRes = await api.getCategories('7d');
 
       setHourlyData(hourlyRes.hourly_data || []);

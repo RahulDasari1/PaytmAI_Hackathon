@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: dukaan-saathi-ai
+    env: python
+    buildCommand: "cd frontend && npm install --legacy-peer-deps && npm run build && cd .. && pip install -r requirements.txt"
+    startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: NODE_VERSION
+        value: 20.17.0
+      - key: STORE_NAME
+        value: "Sharma General Store"

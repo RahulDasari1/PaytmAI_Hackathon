@@ -14,7 +14,9 @@ import {
   Language
 } from '../types';
 
-const API_BASE = 'http://localhost:8000/api';
+export const API_BASE = typeof window !== 'undefined' && window.location.port === '5173'
+  ? 'http://localhost:8000/api'
+  : '/api';
 
 export const api = {
   // Dashboard

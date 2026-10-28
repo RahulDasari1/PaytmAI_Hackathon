@@ -1,8 +1,10 @@
 import sys
 from pathlib import Path
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 # Ensure backend package can be imported
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -26,7 +28,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration for local development
+# CORS configuration for development and tunnels
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -35,7 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include all route modules
+# Include all API route modules
 app.include_router(dashboard.router)
 app.include_router(copilot.router)
 app.include_router(sales.router)
@@ -51,6 +53,22 @@ def health_check():
         "service": "Dukaan Saathi AI Backend",
         "version": "1.0.0"
     }
+
+# Production SPA static file serving
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+if FRONTEND_DIST.exists():
+    assets_dir = FRONTEND_DIST / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        if full_path.startswith("api"):
+            return None
+        file_path = FRONTEND_DIST / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(FRONTEND_DIST / "index.html")
 
 if __name__ == "__main__":
     import uvicorn
