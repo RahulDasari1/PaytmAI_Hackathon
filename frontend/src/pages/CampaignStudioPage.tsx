@@ -8,10 +8,11 @@ import {
   Sparkles, 
   Save, 
   Trash2, 
-  MessageSquare,
   Smartphone,
   ShieldCheck,
-  Globe2
+  CheckCircle2,
+  Clock,
+  Users
 } from 'lucide-react';
 import { CampaignItem, Language } from '../types';
 import { getT } from '../i18n';
@@ -108,38 +109,42 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
       
       {/* Page Title */}
-      <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white p-5 rounded-2xl border border-[#E4EAF1] shadow-fintech-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-lg sm:text-xl font-extrabold text-[#10243A] tracking-tight">
             {t.createCampaignTitle}
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Create, preview, and save targeted multilingual WhatsApp & SMS customer promotions
+          <p className="text-xs text-[#667085] mt-0.5">
+            Configure, preview, and save targeted multilingual WhatsApp & SMS customer promotions
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5] flex items-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#12B76A]" />
             <span>Sandbox Mode (Draft Preview Only)</span>
           </span>
         </div>
       </div>
 
-      {/* Main Studio: Form (Left) & Mobile Preview (Right) */}
+      {/* Main Studio: Form (Left) & Mobile Handset Preview (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Left Form: Parameters (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5">
+        {/* Left Form: Guided Parameters (7 cols) */}
+        <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs space-y-5">
           
-          {/* Objective */}
+          {/* Step 1: Objective */}
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-              1. Campaign Objective
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-bold text-[#667085] uppercase tracking-wider">
+                1. Campaign Objective
+              </label>
+              <span className="text-[11px] text-[#002970] font-semibold">Step 1 of 4</span>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {[
                 { id: 'EVENING_FOOTFALL_BOOST', title: 'Evening Footfall Boost', desc: 'Combats observed 24% dip in evening snacks' },
@@ -151,29 +156,29 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
                   key={obj.id}
                   type="button"
                   onClick={() => setObjective(obj.id)}
-                  className={`p-3 rounded-2xl text-left border transition-all ${
+                  className={`p-3 rounded-xl text-left border transition-all ${
                     objective === obj.id
-                      ? 'border-[#0F2D6B] bg-sky-50/70 text-[#0F2D6B] shadow-xs'
-                      : 'border-slate-200 hover:border-slate-300 bg-white'
+                      ? 'border-[#002970] bg-[#F0F9FF] text-[#002970] shadow-xs ring-1 ring-[#002970]'
+                      : 'border-[#E4EAF1] hover:border-slate-300 bg-white text-[#344054]'
                   }`}
                 >
                   <div className="text-xs font-bold">{obj.title}</div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">{obj.desc}</div>
+                  <div className="text-[11px] text-[#667085] mt-0.5 leading-snug">{obj.desc}</div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Audience & Channel */}
+          {/* Step 2: Audience & Channel */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                2. Target Audience
+              <label className="block text-xs font-bold text-[#667085] uppercase tracking-wider mb-1.5">
+                2. Target Customer Segment
               </label>
               <select
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-800 bg-slate-50 focus:bg-white focus:outline-none focus:border-sky-400"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-[#E4EAF1] text-xs font-semibold text-[#10243A] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:border-[#00BAF2]"
               >
                 <option value="Evening Footfall Shoppers (85 customers)">Evening Shoppers (85 customers)</option>
                 <option value="Inactive Regulars (Last 14+ Days) [35 customers]">Inactive Regulars (35 customers)</option>
@@ -183,15 +188,15 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-[#667085] uppercase tracking-wider mb-1.5">
                 3. Delivery Channel
               </label>
-              <div className="flex rounded-xl bg-slate-100 p-1 border border-slate-200">
+              <div className="flex rounded-xl bg-[#F2F4F7] p-1 border border-[#E4EAF1]">
                 <button
                   type="button"
                   onClick={() => setChannel('WhatsApp')}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    channel === 'WhatsApp' ? 'bg-[#0F2D6B] text-white shadow-xs' : 'text-slate-600'
+                    channel === 'WhatsApp' ? 'bg-[#002970] text-white shadow-xs' : 'text-[#667085]'
                   }`}
                 >
                   WhatsApp
@@ -200,7 +205,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
                   type="button"
                   onClick={() => setChannel('SMS')}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    channel === 'SMS' ? 'bg-[#0F2D6B] text-white shadow-xs' : 'text-slate-600'
+                    channel === 'SMS' ? 'bg-[#002970] text-white shadow-xs' : 'text-[#667085]'
                   }`}
                 >
                   SMS
@@ -209,10 +214,10 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
             </div>
           </div>
 
-          {/* Language Selector for Campaign */}
+          {/* Step 3: Language Selector */}
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-              4. Campaign Language (Copy & Tone)
+            <label className="block text-xs font-bold text-[#667085] uppercase tracking-wider mb-1.5">
+              4. Campaign Language & Tone
             </label>
             <div className="flex gap-2">
               {[
@@ -224,10 +229,10 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
                   key={l.code}
                   type="button"
                   onClick={() => setSelectedLang(l.code as Language)}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all ${
                     selectedLang === l.code
-                      ? 'border-[#00BAF2] bg-sky-50 text-[#0F2D6B] shadow-xs'
-                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                      ? 'border-[#002970] bg-[#EBF7FF] text-[#002970] ring-1 ring-[#002970]'
+                      : 'border-[#E4EAF1] text-[#475467] hover:bg-[#F8FAFC]'
                   }`}
                 >
                   {l.label}
@@ -236,16 +241,16 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
             </div>
           </div>
 
-          {/* Editable Copy Area */}
+          {/* Step 4: Editable Message Copy */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                5. Generated Message Body (Editable)
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-bold text-[#667085] uppercase tracking-wider">
+                5. Generated Copy (Editable)
               </label>
               <button
                 type="button"
                 onClick={generateDraft}
-                className="text-xs text-[#0F2D6B] hover:underline flex items-center gap-1 font-semibold"
+                className="text-xs text-[#002970] hover:underline flex items-center gap-1 font-semibold"
               >
                 <RotateCw className="w-3 h-3" />
                 <span>Regenerate Copy</span>
@@ -255,8 +260,12 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
               rows={5}
               value={editableCopy}
               onChange={(e) => setEditableCopy(e.target.value)}
-              className="w-full p-3.5 rounded-2xl border border-slate-200 text-sm leading-relaxed text-slate-800 bg-slate-50 focus:bg-white focus:outline-none focus:border-sky-400"
+              className="w-full p-3.5 rounded-xl border border-[#E4EAF1] text-xs sm:text-sm leading-relaxed text-[#10243A] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:border-[#00BAF2]"
             />
+            <div className="flex justify-between items-center text-[11px] text-[#667085] mt-1">
+              <span>{editableCopy.length} characters</span>
+              <span>Personalization tags: {'{customer_name}'} supported</span>
+            </div>
           </div>
 
           {/* Action Buttons */}
@@ -264,77 +273,81 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
             <button
               type="button"
               onClick={handleCopy}
-              className="flex-1 py-3 px-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-white text-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs"
+              className="flex-1 py-2.5 px-4 rounded-xl border border-[#E4EAF1] hover:border-slate-300 bg-white text-[#344054] font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-fintech-xs"
             >
-              {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-500" />}
+              {copied ? <Check className="w-4 h-4 text-[#12B76A]" /> : <Copy className="w-4 h-4 text-[#667085]" />}
               <span>{copied ? t.copiedToast : t.copyMessage}</span>
             </button>
 
             <button
               type="button"
               onClick={handleSave}
-              className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#0F2D6B] to-[#00BAF2] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md hover:opacity-90 transition-all"
+              className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#002970] to-[#00BAF2] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-fintech-sm hover:opacity-95 transition-all"
             >
               <Save className="w-4 h-4" />
-              <span>{saveSuccess ? "Draft Saved in Storage!" : t.saveDraft}</span>
+              <span>{saveSuccess ? "Draft Saved to Database!" : t.saveDraft}</span>
             </button>
           </div>
 
         </div>
 
-        {/* Right Phone Mockup: Live Preview (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col items-center justify-center bg-slate-100/70 p-6 rounded-3xl border border-slate-200">
+        {/* Right Phone Mockup: Live Handset Preview (5 cols) */}
+        <div className="lg:col-span-5 flex flex-col items-center justify-center bg-[#F5F8FC] p-6 rounded-2xl border border-[#E4EAF1]">
           
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-1.5">
-            <Smartphone className="w-4 h-4 text-slate-400" />
-            <span>Mobile Handset Preview ({channel})</span>
+          <div className="text-xs font-bold text-[#667085] uppercase tracking-wider mb-4 flex items-center gap-1.5">
+            <Smartphone className="w-4 h-4 text-[#98A2B3]" />
+            <span>Customer Handset Preview ({channel})</span>
           </div>
 
           {/* Smartphone Frame */}
-          <div className="w-[280px] sm:w-[310px] h-[520px] bg-slate-900 rounded-[40px] p-3 shadow-2xl border-4 border-slate-800 flex flex-col justify-between relative overflow-hidden">
+          <div className="w-[280px] sm:w-[305px] h-[510px] bg-[#10243A] rounded-[36px] p-2.5 shadow-2xl border-4 border-slate-700 flex flex-col justify-between relative overflow-hidden">
             
             {/* Top Speaker notch */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-4 bg-slate-800 rounded-full z-10 flex items-center justify-center">
-              <span className="w-2.5 h-2.5 rounded-full bg-slate-900 ml-auto mr-2"></span>
+            <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-24 h-3.5 bg-slate-800 rounded-full z-10 flex items-center justify-center">
+              <span className="w-2 h-2 rounded-full bg-slate-900 ml-auto mr-2"></span>
             </div>
 
             {/* Simulated Phone Screen */}
-            <div className="w-full h-full bg-[#E5DDD5] rounded-[32px] overflow-hidden flex flex-col text-slate-800 pt-8 pb-3">
+            <div className="w-full h-full bg-[#E5DDD5] rounded-[28px] overflow-hidden flex flex-col text-[#1D2939] pt-7 pb-3">
               
               {/* WhatsApp / SMS Header */}
-              <div className="bg-[#075E54] text-white p-3 flex items-center gap-2.5 shadow-sm">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
+              <div className="bg-[#075E54] text-white p-2.5 flex items-center gap-2 shadow-xs">
+                <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">
                   SGS
                 </div>
                 <div>
-                  <div className="text-xs font-bold leading-tight">Sharma General Store</div>
-                  <div className="text-[10px] text-emerald-200 flex items-center gap-1">
-                    <span>Verified Merchant</span>
+                  <div className="text-xs font-bold leading-tight flex items-center gap-1">
+                    <span>Sharma General Store</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  </div>
+                  <div className="text-[9px] text-emerald-100">
+                    Verified Merchant • Soundbox Linked
                   </div>
                 </div>
               </div>
 
               {/* Chat Message Bubble */}
               <div className="flex-1 p-3 flex flex-col justify-end space-y-2">
-                <div className="bg-white rounded-2xl rounded-tl-none p-3 shadow-sm text-xs leading-relaxed max-w-[90%] border border-slate-200/40 animate-in fade-in">
-                  <div className="font-bold text-[#0F2D6B] mb-1">
-                    {draft.name || "Special Offer Announcement"}
+                <div className="bg-white rounded-2xl rounded-tl-none p-3 shadow-sm text-xs leading-relaxed max-w-[92%] border border-slate-200/50 animate-in fade-in">
+                  <div className="font-bold text-[#002970] mb-1">
+                    {draft.name || "Special Customer Announcement"}
                   </div>
-                  <p className="whitespace-pre-line text-slate-700">
+                  <p className="whitespace-pre-line text-[#344054]">
                     {editableCopy}
                   </p>
-                  <div className="text-[9px] text-slate-400 text-right mt-1.5">
-                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • Delivered
+                  <div className="text-[9px] text-[#98A2B3] text-right mt-1.5 flex items-center justify-end gap-1">
+                    <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="text-sky-500">✓✓</span>
                   </div>
                 </div>
 
-                <div className="text-center text-[10px] text-slate-500 font-medium">
+                <div className="text-center text-[10px] text-[#667085] font-medium px-2">
                   {draft.rationale}
                 </div>
               </div>
 
-              {/* Bottom bar */}
-              <div className="bg-white p-2 rounded-xl mx-2 flex items-center text-slate-400 text-[11px] border border-slate-200">
+              {/* Bottom preview banner */}
+              <div className="bg-white p-1.5 rounded-xl mx-2 text-center text-[#667085] text-[10px] border border-slate-200">
                 <span>Message preview only (Simulated)</span>
               </div>
 
@@ -347,44 +360,44 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
       </div>
 
       {/* Persistent Saved Campaigns Section */}
-      <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+      <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-base font-bold text-slate-900">
-              Saved Marketing Campaigns (Persistent Demo Storage)
+            <h2 className="text-sm font-bold text-[#10243A]">
+              Saved Marketing Campaigns (Persistent SQLite Demo Storage)
             </h2>
-            <p className="text-xs text-slate-500">
-              Campaigns stored in local SQLite demo database
+            <p className="text-xs text-[#667085]">
+              Campaign drafts and active promotions tracked in local database
             </p>
           </div>
-          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-[#0F2D6B]">
+          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#EBF7FF] text-[#002970] border border-[#B9E6FE] tabular-nums">
             {savedCampaigns.length} Campaigns
           </span>
         </div>
 
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-[#F2F4F7]">
           {savedCampaigns.map((cmp) => (
-            <div key={cmp.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div key={cmp.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-xs font-bold text-slate-900">{cmp.name}</h3>
+                  <h3 className="text-xs font-bold text-[#10243A]">{cmp.name}</h3>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                     cmp.status === 'ACTIVE' 
-                      ? 'bg-emerald-100 text-emerald-800'
+                      ? 'bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5]'
                       : cmp.status === 'DRAFT'
-                      ? 'bg-amber-100 text-amber-800'
+                      ? 'bg-[#FFF9EB] text-[#B54708] border border-[#FEF0C7]'
                       : 'bg-slate-100 text-slate-700'
                   }`}>
                     {cmp.status}
                   </span>
-                  <span className="text-[10px] uppercase font-semibold text-slate-400">
+                  <span className="text-[10px] uppercase font-semibold text-[#667085]">
                     [{cmp.language.toUpperCase()}]
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1 line-clamp-1">
+                <p className="text-[11px] text-[#475467] mt-1 line-clamp-1">
                   {cmp.message_copy}
                 </p>
-                <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-2">
+                <div className="text-[10px] text-[#667085] mt-1 flex items-center gap-2">
                   <span>Audience: {cmp.audience_segment} ({cmp.target_customer_count} reach)</span>
                   <span>•</span>
                   <span>Timing: {cmp.suggested_timing}</span>
@@ -397,13 +410,13 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
                     setEditableCopy(cmp.message_copy);
                     setSelectedLang(cmp.language);
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-[#0F2D6B] text-xs font-bold transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-[#EBF7FF] hover:bg-[#D1E9FF] text-[#002970] text-xs font-bold transition-colors"
                 >
                   Load in Studio
                 </button>
                 <button
                   onClick={() => handleDelete(cmp.id)}
-                  className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition-colors"
+                  className="p-1.5 text-[#98A2B3] hover:text-[#B42318] rounded-lg transition-colors"
                   title="Delete Campaign"
                 >
                   <Trash2 className="w-4 h-4" />

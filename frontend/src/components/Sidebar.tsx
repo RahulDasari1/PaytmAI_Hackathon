@@ -8,7 +8,8 @@ import {
   Package, 
   Award, 
   Settings,
-  AlertCircle
+  AlertCircle,
+  Volume2
 } from 'lucide-react';
 import { Language } from '../types';
 import { getT } from '../i18n';
@@ -45,10 +46,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 min-h-[calc(100vh-4rem)]">
-      <div className="p-4 space-y-1.5">
-        <div className="px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-          Merchant Navigation
+    <aside className="w-64 bg-white border-r border-[#E4EAF1] flex flex-col justify-between shrink-0 min-h-[calc(100vh-4rem)]">
+      
+      {/* Navigation Links */}
+      <div className="p-3.5 space-y-1">
+        <div className="px-3 py-2 text-[10px] font-bold text-[#667085] uppercase tracking-wider">
+          Merchant Operations
         </div>
 
         {navItems.map((item) => {
@@ -59,26 +62,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={item.id}
               onClick={() => onSelectTab(item.id)}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
                 isActive
-                  ? 'bg-gradient-to-r from-[#0F2D6B] to-[#002970] text-white shadow-sm shadow-blue-900/10'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                  ? 'bg-[#002970] text-white shadow-sm'
+                  : 'text-[#475467] hover:text-[#10243A] hover:bg-[#F8FAFC]'
               }`}
             >
               <div className="flex items-center gap-3">
-                <Icon className={`w-4 h-4 ${isActive ? 'text-[#00BAF2]' : 'text-slate-500'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#00BAF2]' : 'text-[#667085]'}`} />
                 <span className="truncate">{item.label}</span>
               </div>
 
               {item.isHighlight && !isActive && (
-                <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-md bg-sky-100 text-[#0F2D6B]">
+                <span className="px-1.5 py-0.5 text-[9px] font-extrabold rounded-md bg-[#EBF7FF] text-[#002970] border border-[#B9E6FE]">
                   AI
                 </span>
               )}
 
               {item.badge && (
-                <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full flex items-center gap-1 ${
-                  isActive ? 'bg-amber-400 text-slate-900' : 'bg-rose-100 text-rose-700'
+                <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full flex items-center gap-1 tabular-nums ${
+                  isActive ? 'bg-amber-400 text-slate-900' : 'bg-[#FEF3F2] text-[#B42318] border border-[#FECDCA]'
                 }`}>
                   <AlertCircle className="w-3 h-3" />
                   <span>{item.badge}</span>
@@ -89,19 +92,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </div>
 
-      {/* Bottom Merchant Quick Info */}
-      <div className="p-4 m-3 rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50/50 border border-slate-200/80">
-        <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span>Paytm UPI Soundbox</span>
+      {/* Bottom Merchant Device Card */}
+      <div className="p-3.5 m-3 rounded-2xl bg-[#F8FAFC] border border-[#E4EAF1]">
+        <div className="flex items-center justify-between text-xs font-bold text-[#10243A]">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#12B76A] animate-pulse"></span>
+            <span>Paytm Soundbox</span>
+          </div>
+          <span className="text-[10px] font-bold text-[#027A48] bg-[#ECFDF3] px-1.5 py-0.5 rounded border border-[#A6F4C5]">
+            ONLINE
+          </span>
         </div>
-        <p className="text-[11px] text-slate-500 mt-1">
-          Instant audio receipt alerts active for Sharma General Store.
+
+        <p className="text-[11px] text-[#667085] mt-1.5 leading-snug">
+          Instant audio receipt confirmations enabled for counter billing.
         </p>
-        <div className="mt-2.5 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-[#0F2D6B] font-semibold">
-          <span>UPI: sharmastore@paytm</span>
+
+        <div className="mt-2.5 pt-2 border-t border-[#E4EAF1] flex items-center justify-between text-[11px]">
+          <span className="text-[#667085]">VPA:</span>
+          <span className="font-bold text-[#002970]">sharmastore@paytm</span>
         </div>
       </div>
+
     </aside>
   );
 };

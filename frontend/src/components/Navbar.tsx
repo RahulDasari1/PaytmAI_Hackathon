@@ -4,10 +4,9 @@ import {
   Volume2, 
   Sparkles, 
   RotateCcw, 
-  CheckCircle2, 
   Globe2, 
-  HelpCircle,
-  ExternalLink
+  CheckCircle,
+  ShieldCheck
 } from 'lucide-react';
 import { Language, SystemStatus } from '../types';
 import { getT } from '../i18n';
@@ -34,75 +33,81 @@ export const Navbar: React.FC<NavbarProps> = ({
   const t = getT(language);
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+    <header className="sticky top-0 z-40 bg-white border-b border-[#E4EAF1] shadow-fintech-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
           {/* Brand & Store Profile */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0F2D6B] to-[#00BAF2] flex items-center justify-center text-white shadow-md">
+          <div className="flex items-center gap-3 sm:gap-4">
+            
+            {/* Logo Badge */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#002970] to-[#00BAF2] flex items-center justify-center text-white shadow-sm shrink-0">
                 <Store className="w-5 h-5 text-white" />
               </div>
+
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-900 text-lg tracking-tight">
+                  <span className="font-extrabold text-[#10243A] text-base sm:text-lg tracking-tight">
                     {t.appTitle}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-sky-100 text-[#0F2D6B] border border-sky-200">
-                    Paytm Ecosystem
+                  <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EBF7FF] text-[#002970] border border-[#B9E6FE]">
+                    <ShieldCheck className="w-3 h-3 text-[#00BAF2]" />
+                    <span>Paytm Fintech Context</span>
                   </span>
                 </div>
-                <div className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
-                  <span>{t.storeName}</span>
-                  <span className="text-slate-300">•</span>
-                  <span>{systemStatus?.store_profile.city || "Noida, UP"}</span>
+
+                <div className="text-[11px] text-[#667085] font-medium flex items-center gap-1.5 truncate">
+                  <span className="font-semibold text-[#344054]">{t.storeName}</span>
+                  <span className="text-[#D0D5DD]">•</span>
+                  <span>{systemStatus?.store_profile.city || "Sector 15, Noida"}</span>
                 </div>
               </div>
             </div>
 
             {/* Soundbox device status */}
-            <div 
+            <button 
               onClick={onOpenSoundboxModal}
-              className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium cursor-pointer hover:bg-emerald-100 transition-colors"
-              title="Click to test Paytm Soundbox Voice Announcement"
+              className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-[#ECFDF3] border border-[#A6F4C5] text-[#027A48] text-xs font-semibold hover:bg-[#D1FADF] transition-all cursor-pointer"
+              title="Test Paytm Soundbox Voice Announcement"
             >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#12B76A] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#12B76A]"></span>
               </span>
-              <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>PSB-99214-NOIDA (Active)</span>
-            </div>
+              <Volume2 className="w-3.5 h-3.5 text-[#12B76A]" />
+              <span className="tabular-nums">Soundbox PSB-99214 (Active)</span>
+            </button>
+
           </div>
 
-          {/* Right Controls: Judge Demo, Language Switcher, AI Status, Reset */}
-          <div className="flex items-center gap-3">
+          {/* Right Controls: Judge Walkthrough, Language Segment, AI Engine, Reset */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             
             {/* Judge 3-Min Demo Button */}
             <button
               onClick={onToggleJudgeDemo}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-fintech-xs ${
                 isJudgeDemoActive
-                  ? 'bg-amber-500 text-white shadow-amber-200 ring-2 ring-amber-300 animate-pulse-subtle'
-                  : 'bg-amber-50 text-amber-900 border border-amber-300 hover:bg-amber-100'
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-amber-200 ring-2 ring-amber-300'
+                  : 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <Sparkles className="w-3.5 h-3.5 text-amber-600 fill-amber-300" />
               <span>{t.judgeDemo}</span>
             </button>
 
-            {/* Language Switcher */}
-            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
-              <Globe2 className="w-3.5 h-3.5 text-slate-500 ml-2 mr-1" />
+            {/* Language Segmented Toggle */}
+            <div className="flex items-center bg-[#F2F4F7] p-0.5 rounded-xl border border-[#E4EAF1]">
+              <Globe2 className="w-3.5 h-3.5 text-[#667085] ml-2 mr-1 shrink-0" />
               {(['en', 'hi', 'te'] as Language[]).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => onLanguageChange(lang)}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-colors ${
+                  className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
                     language === lang
-                      ? 'bg-white text-[#0F2D6B] shadow-sm font-bold'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-white text-[#002970] shadow-fintech-xs'
+                      : 'text-[#667085] hover:text-[#10243A]'
                   }`}
                 >
                   {lang === 'en' ? 'English' : lang === 'hi' ? 'हिंदी' : 'తెలుగు'}
@@ -110,16 +115,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               ))}
             </div>
 
-            {/* AI Status Badge */}
-            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700">
-              <span className="w-2 h-2 rounded-full bg-sky-500"></span>
-              <span>{systemStatus?.ai_engine.label || "AI Copilot Ready"}</span>
+            {/* AI Engine Status Badge */}
+            <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1] text-xs font-medium text-[#344054]">
+              <span className="w-2 h-2 rounded-full bg-[#00BAF2]"></span>
+              <span>{systemStatus?.ai_engine.label || "AI Analytics Engine"}</span>
             </div>
 
             {/* Reset Demo Data Button */}
             <button
               onClick={onResetDemo}
-              className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-transparent hover:border-rose-200"
+              className="p-2 text-[#667085] hover:text-[#B42318] hover:bg-[#FEF3F2] rounded-xl transition-colors border border-transparent hover:border-[#FECDCA]"
               title="Reset Demo Data (Regenerate 90-day transactions)"
             >
               <RotateCcw className="w-4 h-4" />

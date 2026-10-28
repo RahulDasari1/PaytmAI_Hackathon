@@ -58,31 +58,31 @@ export const VoiceSpeakerModal: React.FC<VoiceSpeakerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in">
       <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-100">
         
         {/* Header */}
-        <div className="bg-gradient-to-r from-[#0F2D6B] to-[#00BAF2] p-5 text-white flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#002970] to-[#00BAF2] p-5 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md">
               <Volume2 className="w-5 h-5 text-sky-200" />
             </div>
             <div>
-              <h3 className="font-bold text-base">Paytm Soundbox Simulator</h3>
-              <p className="text-xs text-sky-100 font-medium">Device: PSB-99214-NOIDA</p>
+              <h3 className="font-extrabold text-base leading-tight">Paytm Soundbox Voice Simulator</h3>
+              <p className="text-xs text-sky-100 font-medium">Device: PSB-99214-NOIDA • Audio Engine</p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+            className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Device graphic representation */}
-        <div className="p-6 text-center bg-slate-50 border-b border-slate-200">
-          <div className="relative mx-auto w-40 h-44 rounded-3xl bg-gradient-to-b from-[#0F2D6B] to-[#0A1E42] p-4 text-white shadow-xl flex flex-col justify-between items-center border-4 border-sky-400/40">
+        {/* Device Graphic Representation */}
+        <div className="p-6 text-center bg-[#F5F8FC] border-b border-[#E4EAF1]">
+          <div className="relative mx-auto w-40 h-44 rounded-3xl bg-gradient-to-b from-[#002970] to-[#0A1E42] p-4 text-white shadow-xl flex flex-col justify-between items-center border-4 border-sky-400/40">
             {/* Speaker mesh */}
             <div className="w-full flex flex-col items-center gap-1 mt-2">
               <div className="w-12 h-1 rounded-full bg-sky-400"></div>
@@ -93,63 +93,63 @@ export const VoiceSpeakerModal: React.FC<VoiceSpeakerModalProps> = ({
             {/* Audio Wave animation when playing */}
             {isPlaying ? (
               <div className="flex items-center gap-1.5 h-12">
-                <span className="w-1.5 h-6 bg-emerald-400 rounded-full animate-bounce"></span>
+                <span className="w-1.5 h-6 bg-[#12B76A] rounded-full animate-bounce"></span>
                 <span className="w-1.5 h-10 bg-emerald-300 rounded-full animate-bounce delay-75"></span>
                 <span className="w-1.5 h-12 bg-[#00BAF2] rounded-full animate-bounce delay-150"></span>
                 <span className="w-1.5 h-8 bg-sky-300 rounded-full animate-bounce delay-100"></span>
-                <span className="w-1.5 h-5 bg-emerald-400 rounded-full animate-bounce"></span>
+                <span className="w-1.5 h-5 bg-[#12B76A] rounded-full animate-bounce"></span>
               </div>
             ) : (
               <div className="text-center">
                 <Volume2 className="w-8 h-8 mx-auto text-sky-300/80 mb-1" />
-                <span className="text-[10px] uppercase tracking-wider font-bold text-sky-200">
+                <span className="text-[10px] uppercase tracking-wider font-extrabold text-sky-200">
                   Ready to Announce
                 </span>
               </div>
             )}
 
             {/* Device branding */}
-            <div className="text-[11px] font-extrabold tracking-wider text-sky-100 flex items-center gap-1">
+            <div className="text-[11px] font-extrabold tracking-wider text-white flex items-center gap-1">
               <span>Paytm</span>
-              <span className="text-sky-300 font-normal">Soundbox</span>
+              <span className="text-[#00BAF2] font-semibold">Soundbox</span>
             </div>
           </div>
         </div>
 
         {/* Audio Type Options */}
         <div className="p-6 space-y-4">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <div className="text-xs font-bold text-[#667085] uppercase tracking-wider">
             Select Voice Announcement
           </div>
 
           <div className="space-y-2">
             {[
-              { id: 'payment', label: 'Payment Receipt (₹186 Received)', desc: 'Standard instant audio confirmation' },
-              { id: 'alert', label: 'Dukaan Saathi AI Stock Alert', desc: 'Critical inventory reorder reminder' },
-              { id: 'campaign', label: 'Campaign Launch Alert', desc: 'Marketing notification for store' }
+              { id: 'payment', label: 'Payment Receipt (₹186 Received)', desc: 'Instant audio confirmation at billing counter' },
+              { id: 'alert', label: 'Dukaan Saathi Stockout Alert', desc: 'Critical stock reorder voice reminder' },
+              { id: 'campaign', label: 'Campaign Launch Alert', desc: 'Evening footfall promo announcement' }
             ].map((item) => (
               <button
                 key={item.id}
                 onClick={() => setSelectedVoiceSnippet(item.id as any)}
-                className={`w-full p-3 rounded-xl text-left border transition-all flex items-center justify-between ${
+                className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between ${
                   selectedVoiceSnippet === item.id
-                    ? 'border-[#0F2D6B] bg-sky-50 text-[#0F2D6B]'
-                    : 'border-slate-200 hover:border-slate-300 bg-white'
+                    ? 'border-[#002970] bg-[#F0F9FF] text-[#002970]'
+                    : 'border-[#E4EAF1] hover:border-[#D0D5DD] bg-white'
                 }`}
               >
                 <div>
-                  <div className="text-sm font-semibold">{item.label}</div>
-                  <div className="text-xs text-slate-500">{item.desc}</div>
+                  <div className="text-xs font-bold">{item.label}</div>
+                  <div className="text-[11px] text-[#667085]">{item.desc}</div>
                 </div>
                 {selectedVoiceSnippet === item.id && (
-                  <Check className="w-4 h-4 text-[#0F2D6B]" />
+                  <Check className="w-4 h-4 text-[#002970]" />
                 )}
               </button>
             ))}
           </div>
 
           {/* Current message preview */}
-          <div className="p-3 rounded-xl bg-slate-100 text-xs text-slate-700 italic border border-slate-200/80">
+          <div className="p-3 rounded-xl bg-[#F8FAFC] text-xs text-[#344054] italic border border-[#E4EAF1]">
             "{audioSnippets[selectedVoiceSnippet][language]}"
           </div>
 
@@ -157,10 +157,10 @@ export const VoiceSpeakerModal: React.FC<VoiceSpeakerModalProps> = ({
           <button
             onClick={handlePlayVoice}
             disabled={isPlaying}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-[#0F2D6B] to-[#00BAF2] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-[#002970] to-[#0F3B8C] text-white font-bold text-xs shadow-fintech-sm hover:opacity-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Play className={`w-4 h-4 fill-current ${isPlaying ? 'animate-spin' : ''}`} />
-            <span>{isPlaying ? 'Playing Voice Announcement...' : 'Play Audio via Soundbox'}</span>
+            <span>{isPlaying ? 'Playing Audio on Soundbox...' : 'Play Announcement on Device'}</span>
           </button>
         </div>
 

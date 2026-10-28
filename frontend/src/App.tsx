@@ -13,6 +13,19 @@ import { BusinessImpactPage } from './pages/BusinessImpactPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { Language, SystemStatus } from './types';
 import { api } from './services/api';
+import { 
+  LayoutDashboard, 
+  Bot, 
+  TrendingUp, 
+  Megaphone, 
+  Package, 
+  MoreHorizontal,
+  Users,
+  Award,
+  Settings,
+  Volume2,
+  X
+} from 'lucide-react';
 
 export function App() {
   const [currentTab, setCurrentTab] = useState<string>('overview');
@@ -25,6 +38,7 @@ export function App() {
 
   // Paytm Soundbox simulator modal
   const [isSoundboxModalOpen, setIsSoundboxModalOpen] = useState<boolean>(false);
+  const [isMobileMoreOpen, setIsMobileMoreOpen] = useState<boolean>(false);
 
   // Navigation context
   const [navigationContext, setNavigationContext] = useState<any>(null);
@@ -96,7 +110,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-slate-900 selection:bg-sky-200 selection:text-[#0F2D6B]">
+    <div className="min-h-screen bg-[#F5F8FC] flex flex-col font-sans text-[#1D2939] selection:bg-[#B9E6FE] selection:text-[#002970]">
       
       {/* Top Navigation */}
       <Navbar
@@ -122,7 +136,7 @@ export function App() {
       {/* Main Container */}
       <div className="flex-1 flex max-w-7xl w-full mx-auto">
         
-        {/* Left Sidebar */}
+        {/* Left Desktop Sidebar */}
         <div className="hidden md:block">
           <Sidebar
             currentTab={currentTab}
@@ -132,29 +146,8 @@ export function App() {
           />
         </div>
 
-        {/* Mobile Navigation bar for small screens */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 flex justify-around py-2.5 px-1 shadow-lg">
-          {[
-            { id: 'overview', label: 'Dashboard' },
-            { id: 'copilot', label: 'AI Copilot' },
-            { id: 'sales', label: 'Sales' },
-            { id: 'campaigns', label: 'Campaigns' },
-            { id: 'inventory', label: 'Inventory' },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setCurrentTab(item.id)}
-              className={`px-2 py-1 text-[11px] font-bold rounded-lg ${
-                currentTab === item.id ? 'bg-[#0F2D6B] text-white' : 'text-slate-600'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
         {/* Dynamic Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-full pb-20 md:pb-8">
+        <main className="flex-1 p-3.5 sm:p-5 lg:p-6 overflow-y-auto max-w-full pb-20 md:pb-8">
           {currentTab === 'overview' && (
             <OverviewDashboard language={language} onNavigate={handleNavigate} />
           )}
@@ -192,6 +185,94 @@ export function App() {
         </main>
 
       </div>
+
+      {/* Mobile-First Bottom Navigation Bar for Smart Devices */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E4EAF1] flex justify-around items-center py-2 px-1 shadow-fintech-lg">
+        {[
+          { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+          { id: 'copilot', label: 'Copilot', icon: Bot, isHighlight: true },
+          { id: 'sales', label: 'Sales', icon: TrendingUp },
+          { id: 'campaigns', label: 'Campaigns', icon: Megaphone },
+          { id: 'inventory', label: 'Inventory', icon: Package, hasBadge: criticalCount > 0 },
+        ].map((item) => {
+          const Icon = item.icon;
+          const isActive = currentTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setCurrentTab(item.id)}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all relative ${
+                isActive ? 'text-[#002970] font-bold' : 'text-[#667085]'
+              }`}
+            >
+              <div className="relative">
+                <Icon className={`w-5 h-5 ${isActive ? 'text-[#002970]' : 'text-[#667085]'}`} />
+                {item.hasBadge && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#F04438]" />
+                )}
+              </div>
+              <span className="text-[10px] mt-0.5">{item.label}</span>
+            </button>
+          );
+        })}
+
+        {/* Mobile 'More' Drawer Button */}
+        <button
+          onClick={() => setIsMobileMoreOpen(true)}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[#667085]`}
+        >
+          <MoreHorizontal className="w-5 h-5" />
+          <span className="text-[10px] mt-0.5">More</span>
+        </button>
+      </div>
+
+      {/* Mobile 'More' Drawer Modal */}
+      {isMobileMoreOpen && (
+        <div className="md:hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex flex-col justify-end">
+          <div className="bg-white rounded-t-3xl p-5 space-y-4 border-t border-[#E4EAF1] animate-in slide-in-from-bottom">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E4EAF1]">
+              <span className="text-xs font-bold text-[#10243A] uppercase tracking-wider">Additional Navigation</span>
+              <button onClick={() => setIsMobileMoreOpen(false)} className="p-1 text-[#667085]">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-1">
+              {[
+                { id: 'customers', label: 'Customer Insights', icon: Users },
+                { id: 'impact', label: 'Business Impact & Value', icon: Award },
+                { id: 'settings', label: 'Settings & Store Profile', icon: Settings },
+              ].map((m) => {
+                const MIcon = m.icon;
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => {
+                      setCurrentTab(m.id);
+                      setIsMobileMoreOpen(false);
+                    }}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl text-left text-xs font-bold text-[#344054] hover:bg-[#F8FAFC]"
+                  >
+                    <MIcon className="w-4 h-4 text-[#002970]" />
+                    <span>{m.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => {
+                setIsMobileMoreOpen(false);
+                setIsSoundboxModalOpen(true);
+              }}
+              className="w-full py-2.5 rounded-xl bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5] font-bold text-xs flex items-center justify-center gap-2"
+            >
+              <Volume2 className="w-4 h-4 text-[#12B76A]" />
+              <span>Simulate Paytm Soundbox Audio</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Paytm Soundbox Voice Announcement Simulator Modal */}
       <VoiceSpeakerModal

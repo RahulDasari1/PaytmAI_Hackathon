@@ -10,6 +10,7 @@ interface KPICardProps {
   iconBgColor?: string;
   iconColor?: string;
   reverseGrowthColor?: boolean;
+  deltaAmount?: string;
 }
 
 export const KPICard: React.FC<KPICardProps> = ({
@@ -18,54 +19,77 @@ export const KPICard: React.FC<KPICardProps> = ({
   growthPct,
   subtitle,
   icon: Icon,
-  iconBgColor = 'bg-blue-50',
-  iconColor = 'text-[#0F2D6B]',
-  reverseGrowthColor = false
+  iconBgColor = 'bg-[#F0F9FF]',
+  iconColor = 'text-[#002970]',
+  reverseGrowthColor = false,
+  deltaAmount
 }) => {
   const isPositive = growthPct !== undefined && growthPct > 0;
   const isNegative = growthPct !== undefined && growthPct < 0;
 
-  let growthColor = 'text-slate-600 bg-slate-100';
+  let pillClasses = 'bg-slate-50 text-slate-600 border-slate-200';
   if (growthPct !== undefined) {
     if (isPositive) {
-      growthColor = reverseGrowthColor ? 'text-rose-700 bg-rose-50 border-rose-200' : 'text-emerald-700 bg-emerald-50 border-emerald-200';
+      pillClasses = reverseGrowthColor 
+        ? 'bg-[#FEF3F2] text-[#B42318] border-[#FECDCA]' 
+        : 'bg-[#ECFDF3] text-[#027A48] border-[#A6F4C5]';
     } else if (isNegative) {
-      growthColor = reverseGrowthColor ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-rose-700 bg-rose-50 border-rose-200';
+      pillClasses = reverseGrowthColor 
+        ? 'bg-[#ECFDF3] text-[#027A48] border-[#A6F4C5]' 
+        : 'bg-[#FEF3F2] text-[#B42318] border-[#FECDCA]';
     }
   }
 
   return (
-    <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-2xl p-5 border border-[#E4EAF1] shadow-fintech-xs hover:shadow-fintech-md transition-all duration-200 flex flex-col justify-between">
+      
+      {/* Top Header: Label & Icon */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <span className="text-[11px] font-semibold text-[#667085] uppercase tracking-wider">
           {title}
         </span>
-        <div className={`w-10 h-10 rounded-xl ${iconBgColor} flex items-center justify-center`}>
-          <Icon className={`w-5 h-5 ${iconColor}`} />
+        <div className={`w-9 h-9 rounded-xl ${iconBgColor} flex items-center justify-center shrink-0 border border-slate-100`}>
+          <Icon className={`w-4 h-4 ${iconColor}`} />
         </div>
       </div>
 
-      <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-2xl font-bold text-slate-900 tracking-tight">
+      {/* Main Metric Value */}
+      <div className="mt-3">
+        <span className="text-2xl sm:text-[26px] font-extrabold text-[#10243A] tracking-tight tabular-nums leading-none">
           {value}
         </span>
       </div>
 
-      {growthPct !== undefined && (
-        <div className="mt-2.5 flex items-center gap-2">
-          <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border ${growthColor}`}>
-            {isPositive && <TrendingUp className="w-3 h-3" />}
-            {isNegative && <TrendingDown className="w-3 h-3" />}
-            {growthPct === 0 && <Minus className="w-3 h-3" />}
-            <span>{isPositive ? `+${growthPct}%` : `${growthPct}%`}</span>
-          </div>
-          {subtitle && (
-            <span className="text-xs text-slate-400 font-medium truncate">
-              {subtitle}
+      {/* Bottom Growth Pill & Comparison Context */}
+      <div className="mt-3.5 pt-3 border-t border-[#F2F4F7] flex items-center justify-between text-xs">
+        {growthPct !== undefined ? (
+          <div className="flex items-center gap-2">
+            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold border ${pillClasses} tabular-nums`}>
+              {isPositive && <TrendingUp className="w-3 h-3" />}
+              {isNegative && <TrendingDown className="w-3 h-3" />}
+              {growthPct === 0 && <Minus className="w-3 h-3" />}
+              <span>{isPositive ? `+${growthPct}%` : `${growthPct}%`}</span>
             </span>
-          )}
-        </div>
-      )}
+
+            {deltaAmount && (
+              <span className="text-[11px] font-semibold text-[#344054] tabular-nums">
+                ({deltaAmount})
+              </span>
+            )}
+          </div>
+        ) : (
+          <span className="text-[11px] text-[#667085] font-medium">
+            30-day cohort benchmark
+          </span>
+        )}
+
+        {subtitle && (
+          <span className="text-[11px] text-[#667085] truncate font-medium">
+            {subtitle}
+          </span>
+        )}
+      </div>
+
     </div>
   );
 };
