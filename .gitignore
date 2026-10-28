@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+*.db
+backend/dukaan_saathi.db
+node_modules/
+dist/
+.DS_Store
