@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Volume2, X, Play, ShieldCheck, Sparkles, Check } from 'lucide-react';
+import { Volume2, X, Play, ShieldCheck, Check } from 'lucide-react';
 import { Language } from '../types';
+
+type VoiceSnippetId = 'payment' | 'alert' | 'campaign';
 
 interface VoiceSpeakerModalProps {
   isOpen: boolean;
@@ -14,7 +16,8 @@ export const VoiceSpeakerModal: React.FC<VoiceSpeakerModalProps> = ({
   language
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [selectedVoiceSnippet, setSelectedVoiceSnippet] = useState<'payment' | 'alert' | 'campaign'>('payment');
+  const [selectedVoiceSnippet, setSelectedVoiceSnippet] = useState<VoiceSnippetId>('payment');
+  const [voiceError, setVoiceError] = useState('');
 
   if (!isOpen) return null;
 
@@ -37,24 +40,36 @@ export const VoiceSpeakerModal: React.FC<VoiceSpeakerModalProps> = ({
   };
 
   const handlePlayVoice = () => {
+    setVoiceError('');
+    if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) {
+      setVoiceError(language === 'hi'
+        ? 'इस ब्राउज़र में आवाज़ का नमूना उपलब्ध नहीं है।'
+        : language === 'te'
+          ? 'ఈ బ్రౌజర్‌లో వాయిస్ నమూనా అందుబాటులో లేదు.'
+          : 'Voice preview is not available in this browser.');
+      return;
+    }
+
     setIsPlaying(true);
     const textToSpeak = audioSnippets[selectedVoiceSnippet][language];
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    utterance.rate = 0.95;
+    utterance.pitch = 1.05;
+    if (language === 'hi') utterance.lang = 'hi-IN';
+    else if (language === 'te') utterance.lang = 'te-IN';
+    else utterance.lang = 'en-IN';
 
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      utterance.rate = 0.95;
-      utterance.pitch = 1.05;
-      if (language === 'hi') utterance.lang = 'hi-IN';
-      else if (language === 'te') utterance.lang = 'te-IN';
-      else utterance.lang = 'en-IN';
-
-      utterance.onend = () => setIsPlaying(false);
-      utterance.onerror = () => setIsPlaying(false);
-      window.speechSynthesis.speak(utterance);
-    } else {
-      setTimeout(() => setIsPlaying(false), 2500);
-    }
+    utterance.onend = () => setIsPlaying(false);
+    utterance.onerror = () => {
+      setIsPlaying(false);
+      setVoiceError(language === 'hi'
+        ? 'आवाज़ का नमूना नहीं चला। कृपया फिर कोशिश करें।'
+        : language === 'te'
+          ? 'వాయిస్ నమూనా ప్లే కాలేదు. మళ్లీ ప్రయత్నించండి.'
+          : 'The voice preview could not play. Please try again.');
+    };
+    window.speechSynthesis.speak(utterance);
   };
 
   return (
@@ -68,8 +83,12 @@ export const VoiceSpeakerModal: React.FC<VoiceSpeakerModalProps> = ({
               <Volume2 className="w-5 h-5 text-sky-200" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base leading-tight">Paytm Soundbox Voice Simulator</h3>
-              <p className="text-xs text-sky-100 font-medium">Device: PSB-99214-NOIDA • Audio Engine</p>
+                  <h3 className="font-extrabold text-base leading-tight">
+                    {language === 'hi' ? 'साउंडबॉक्स की आवाज़ का नमूना' : language === 'te' ? 'సౌండ్‌బాక్స్ వాయిస్ నమూనా' : 'Soundbox voice preview'}
+                  </h3>
+                  <p className="text-xs font-medium text-sky-100">
+                    {language === 'hi' ? 'यह नमूना इसी डिवाइस पर बजेगा। कोई साउंडबॉक्स जुड़ा नहीं है।' : language === 'te' ? 'ఈ నమూనా ఈ పరికరంలో ప్లే అవుతుంది. సౌండ్‌బాక్స్ కనెక్ట్ కాలేదు.' : 'Played on this device. No Soundbox is connected.'}
+                  </p>
             </div>
           </div>
           <button 
@@ -103,14 +122,14 @@ export const VoiceSpeakerModal: React.FC<VoiceSpeakerModalProps> = ({
               <div className="text-center">
                 <Volume2 className="w-8 h-8 mx-auto text-sky-300/80 mb-1" />
                 <span className="text-[10px] uppercase tracking-wider font-extrabold text-sky-200">
-                  Ready to Announce
+                  {language === 'hi' ? 'नमूना सुनने के लिए तैयार' : language === 'te' ? 'నమూనా వినడానికి సిద్ధం' : 'Ready to preview'}
                 </span>
               </div>
             )}
 
             {/* Device branding */}
             <div className="text-[11px] font-extrabold tracking-wider text-white flex items-center gap-1">
-              <span>Paytm</span>
+              <span>{language === 'hi' ? 'डेमो' : language === 'te' ? 'డెమో' : 'Demo'}</span>
               <span className="text-[#00BAF2] font-semibold">Soundbox</span>
             </div>
           </div>
@@ -119,18 +138,21 @@ export const VoiceSpeakerModal: React.FC<VoiceSpeakerModalProps> = ({
         {/* Audio Type Options */}
         <div className="p-6 space-y-4">
           <div className="text-xs font-bold text-[#667085] uppercase tracking-wider">
-            Select Voice Announcement
+            {language === 'hi' ? 'आवाज़ का नमूना चुनें' : language === 'te' ? 'వాయిస్ నమూనా ఎంచుకోండి' : 'Choose a voice sample'}
           </div>
 
           <div className="space-y-2">
             {[
-              { id: 'payment', label: 'Payment Receipt (₹186 Received)', desc: 'Instant audio confirmation at billing counter' },
-              { id: 'alert', label: 'Dukaan Saathi Stockout Alert', desc: 'Critical stock reorder voice reminder' },
-              { id: 'campaign', label: 'Campaign Launch Alert', desc: 'Evening footfall promo announcement' }
+              { id: 'payment' as const, label: 'Payment received (sample)', desc: 'A short payment confirmation' },
+              { id: 'alert' as const, label: 'Stock reminder (sample)', desc: 'A reminder to check low stock' },
+              { id: 'campaign' as const, label: 'Offer draft (sample)', desc: 'A reminder about a prepared offer' }
             ].map((item) => (
               <button
                 key={item.id}
-                onClick={() => setSelectedVoiceSnippet(item.id as any)}
+                onClick={() => {
+                  setSelectedVoiceSnippet(item.id);
+                  setVoiceError('');
+                }}
                 className={`w-full p-3 rounded-2xl text-left border transition-all flex items-center justify-between ${
                   selectedVoiceSnippet === item.id
                     ? 'border-[#002970] bg-[#F0F9FF] text-[#002970]'
@@ -152,6 +174,11 @@ export const VoiceSpeakerModal: React.FC<VoiceSpeakerModalProps> = ({
           <div className="p-3 rounded-xl bg-[#F8FAFC] text-xs text-[#344054] italic border border-[#E4EAF1]">
             "{audioSnippets[selectedVoiceSnippet][language]}"
           </div>
+          {voiceError && <p className="rounded-xl border border-[#FECDCA] bg-[#FFF8F7] p-3 text-sm text-[#B42318]" role="alert">{voiceError}</p>}
+          <p className="flex items-start gap-2 rounded-xl border border-[#CFE8F5] bg-[#F0FAFF] p-3 text-xs leading-relaxed text-[#475467]">
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#006B9B]" aria-hidden="true" />
+            {language === 'hi' ? 'यह सिर्फ़ ब्राउज़र में आवाज़ का नमूना है, असली पेमेंट घोषणा नहीं।' : language === 'te' ? 'ఇది బ్రౌజర్‌లో వాయిస్ నమూనా మాత్రమే, నిజమైన చెల్లింపు ప్రకటన కాదు.' : 'This is only a browser voice sample, not a real payment announcement.'}
+          </p>
 
           {/* Action button */}
           <button
@@ -160,7 +187,9 @@ export const VoiceSpeakerModal: React.FC<VoiceSpeakerModalProps> = ({
             className="w-full py-3 rounded-xl bg-gradient-to-r from-[#002970] to-[#0F3B8C] text-white font-bold text-xs shadow-fintech-sm hover:opacity-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Play className={`w-4 h-4 fill-current ${isPlaying ? 'animate-spin' : ''}`} />
-            <span>{isPlaying ? 'Playing Audio on Soundbox...' : 'Play Announcement on Device'}</span>
+            <span>{isPlaying
+              ? (language === 'hi' ? 'इस डिवाइस पर नमूना चल रहा है…' : language === 'te' ? 'ఈ పరికరంలో నమూనా ప్లే అవుతోంది…' : 'Playing preview on this device…')
+              : (language === 'hi' ? 'आवाज़ का नमूना सुनें' : language === 'te' ? 'వాయిస్ నమూనా వినండి' : 'Play voice preview')}</span>
           </button>
         </div>
 

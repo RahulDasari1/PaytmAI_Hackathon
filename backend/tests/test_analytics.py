@@ -77,6 +77,10 @@ class TestDukaanSaathi(unittest.TestCase):
         res_inv = run_copilot_query("What should I stock more of?", "en")
         self.assertEqual(res_inv["tool_called"], "get_inventory_recommendations")
 
+        res_runout = run_copilot_query("What might run out soon?", "en")
+        self.assertEqual(res_runout["tool_called"], "get_inventory_recommendations")
+        self.assertIn("may run out soon", res_runout["answer"].lower())
+
         # 5. Customer retention inquiry
         res_cust = run_copilot_query("How can I bring back inactive customers?", "en")
         self.assertEqual(res_cust["tool_called"], "get_customer_insights")

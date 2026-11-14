@@ -54,14 +54,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         key={item.id}
         onClick={() => onSelectTab(item.id)}
         aria-current={isActive ? 'page' : undefined}
-        className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-colors ${
+        className={`w-full flex items-center justify-between rounded-2xl px-3.5 py-3 text-sm font-semibold transition-all ${
           isActive
-            ? 'bg-[#002970] text-white shadow-sm'
-            : 'text-[#475467] hover:text-[#10243A] hover:bg-[#F8FAFC]'
+            ? 'bg-[#EAF8FF] text-[#002970] ring-1 ring-[#B9E6FE] shadow-[0_5px_16px_-12px_rgba(0,41,112,0.5)]'
+            : 'text-[#475467] hover:bg-[#F4FAFD] hover:text-[#10243A]'
         }`}
       >
         <span className="flex items-center gap-3">
-          <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-[#00BAF2]' : 'text-[#667085]'}`} />
+          <Icon className={`h-5 w-5 shrink-0 ${isActive ? 'text-[#0087BD]' : 'text-[#667085]'}`} />
           <span>{item.label}</span>
         </span>
         {item.id === 'inventory' && criticalInventoryCount > 0 && (
@@ -77,21 +77,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="w-64 bg-white border-r border-[#E4EAF1] flex flex-col justify-between shrink-0 min-h-[calc(100vh-4rem)]">
-      <div className="p-3.5">
+    <aside className="sticky top-[5.75rem] flex min-h-[calc(100vh-5.75rem)] w-60 shrink-0 flex-col justify-between border-r border-[#E4EAF1] bg-white/90">
+      <div className="p-3">
         <nav aria-label={t.navMoreTools} className="space-y-1">
           {primaryItems.map(renderItem)}
           <button
             onClick={() => setIsMoreOpen((open) => !open)}
             aria-expanded={showMoreItems}
-            className="mt-2 flex w-full items-center justify-between rounded-xl px-3.5 py-3 text-sm font-semibold text-[#667085] transition-colors hover:bg-[#F8FAFC] hover:text-[#10243A]"
+            className="mt-2 flex w-full items-center justify-between rounded-2xl px-3.5 py-3 text-sm font-semibold text-[#667085] transition-colors hover:bg-[#F4FAFD] hover:text-[#10243A]"
           >
             <span>{t.navMoreTools}</span>
             <ChevronDown className={`h-4 w-4 transition-transform ${showMoreItems ? 'rotate-180' : ''}`} aria-hidden="true" />
           </button>
-          {showMoreItems && <div className="space-y-1 border-l border-[#E4EAF1] pl-2">{moreItems.map(renderItem)}</div>}
+          {showMoreItems && <div className="space-y-1 border-l border-[#B9E6FE] pl-2">{moreItems.map(renderItem)}</div>}
         </nav>
-        <div className="mt-5 rounded-2xl border border-[#B9E6FE] bg-[#F0F9FF] p-4">
+        <div className="m-3 mt-4 rounded-2xl border border-[#D4ECF8] bg-gradient-to-br from-[#EFFAFF] to-white p-4">
           <p className="text-sm font-bold text-[#002970]">{t.navCopilot}</p>
           <p className="mt-1 text-xs leading-relaxed text-[#475467]">
             {language === 'hi' ? 'बिक्री, स्टॉक या ऑफ़र के बारे में पूछें।' : language === 'te' ? 'అమ్మకాలు, స్టాక్ లేదా ఆఫర్ల గురించి అడగండి.' : 'Ask about sales, stock or offers.'}

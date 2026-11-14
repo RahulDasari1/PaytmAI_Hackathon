@@ -71,11 +71,11 @@ export function App() {
 
   const handleNavigate = (tab: string, context?: any) => {
     setCurrentTab(tab);
+    if (tab === 'copilot') {
+      setCopilotInitialQuery(context?.query ?? '');
+    }
     if (context) {
       setNavigationContext(context);
-      if (tab === 'copilot' && context.query) {
-        setCopilotInitialQuery(context.query);
-      }
     }
   };
 
@@ -94,18 +94,16 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F8FC] flex flex-col font-sans text-[#1D2939] selection:bg-[#B9E6FE] selection:text-[#002970]">
+    <div className="flex min-h-screen flex-col bg-[linear-gradient(180deg,#F0F8FD_0%,#F7FAFC_260px,#F5F8FC_100%)] font-sans text-[#1D2939] selection:bg-[#B9E6FE] selection:text-[#002970]">
       
       {/* Top Navigation */}
       <Navbar
         language={language}
         onLanguageChange={setLanguage}
-        systemStatus={systemStatus}
-        onOpenSoundboxModal={() => setIsSoundboxModalOpen(true)}
       />
 
       {/* Main Container */}
-      <div className="flex-1 flex max-w-7xl w-full mx-auto">
+      <div className="mx-auto flex w-full max-w-7xl flex-1">
         
         {/* Left Desktop Sidebar */}
         <div className="hidden md:block">
@@ -118,7 +116,7 @@ export function App() {
         </div>
 
         {/* Dynamic Page Content */}
-        <main className="flex-1 p-3.5 sm:p-5 lg:p-6 overflow-y-auto max-w-full pb-20 md:pb-8">
+        <main className="min-w-0 max-w-full flex-1 overflow-y-auto px-3.5 py-5 pb-24 sm:px-5 lg:px-7 lg:py-7 md:pb-8">
           {currentTab === 'overview' && (
             <MerchantHomePage language={language} onNavigate={handleNavigate} />
           )}
@@ -131,7 +129,7 @@ export function App() {
             />
           )}
           {currentTab === 'sales' && (
-            <SalesAnalyticsPage language={language} onNavigate={handleNavigate} />
+            <SalesAnalyticsPage language={language} />
           )}
           {currentTab === 'customers' && (
             <CustomerInsightsPage language={language} onNavigate={handleNavigate} />
@@ -143,12 +141,11 @@ export function App() {
             <InventoryPage language={language} onRefreshCriticalCount={setCriticalCount} />
           )}
           {currentTab === 'impact' && (
-            <BusinessImpactPage language={language} />
+            <BusinessImpactPage language={language} onNavigate={handleNavigate} />
           )}
           {currentTab === 'settings' && (
             <SettingsPage
               language={language}
-              onLanguageChange={setLanguage}
               systemStatus={systemStatus}
               onResetDemo={handleResetDemo}
             />
@@ -158,7 +155,7 @@ export function App() {
       </div>
 
       {/* Mobile-First Bottom Navigation Bar for Smart Devices */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E4EAF1] flex justify-around items-center py-2 px-1 shadow-fintech-lg">
+      <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-[#DCE6EF] bg-white/95 px-1 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-8px_28px_-20px_rgba(16,36,58,0.55)] backdrop-blur-md md:hidden">
         {[
           { id: 'overview', label: t.navHome, icon: LayoutDashboard },
           { id: 'copilot', label: t.navCopilot, icon: Bot, isHighlight: true },
@@ -171,17 +168,18 @@ export function App() {
             <button
               key={item.id}
               onClick={() => setCurrentTab(item.id)}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all relative ${
-                isActive ? 'text-[#002970] font-bold' : 'text-[#667085]'
+              aria-current={isActive ? 'page' : undefined}
+              className={`relative flex min-h-12 min-w-14 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 transition-all ${
+                isActive ? 'bg-[#EAF8FF] font-bold text-[#002970]' : 'text-[#667085] hover:bg-[#F8FAFC]'
               }`}
             >
               <div className="relative">
-                <Icon className={`w-5 h-5 ${isActive ? 'text-[#002970]' : 'text-[#667085]'}`} />
+                <Icon className={`h-5 w-5 ${isActive ? 'text-[#002970]' : 'text-[#667085]'}`} />
                 {item.hasBadge && (
                   <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#F04438]" />
                 )}
               </div>
-              <span className="text-[10px] mt-0.5">{item.label}</span>
+              <span className="text-[10px] leading-none">{item.label}</span>
             </button>
           );
         })}
@@ -189,10 +187,11 @@ export function App() {
         {/* Mobile 'More' Drawer Button */}
         <button
           onClick={() => setIsMobileMoreOpen(true)}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[#667085]`}
+          aria-expanded={isMobileMoreOpen}
+          className={`flex min-h-12 min-w-14 flex-col items-center justify-center gap-0.5 rounded-2xl px-2 text-[#667085] transition-colors hover:bg-[#F8FAFC] ${isMobileMoreOpen ? 'bg-[#EAF8FF] text-[#002970]' : ''}`}
         >
           <MoreHorizontal className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">{t.navMore}</span>
+          <span className="text-[10px] leading-none">{t.navMore}</span>
         </button>
       </div>
 
@@ -200,7 +199,7 @@ export function App() {
       {isMobileMoreOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex flex-col justify-end">
           <div
-            className="bg-white rounded-t-3xl p-5 space-y-4 border-t border-[#E4EAF1] animate-in slide-in-from-bottom"
+            className="space-y-4 rounded-t-[28px] border-t border-[#DCE6EF] bg-white p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[0_-16px_40px_-24px_rgba(16,36,58,0.55)] animate-in slide-in-from-bottom"
             role="dialog"
             aria-modal="true"
             aria-labelledby="mobile-more-title"

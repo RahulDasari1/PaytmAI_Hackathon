@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Store, 
   Cpu, 
@@ -6,39 +6,32 @@ import {
 } from 'lucide-react';
 import { Language, SystemStatus } from '../types';
 import { getT } from '../i18n';
+import { PageHeader } from '../components/PageHeader';
 
 interface SettingsPageProps {
   language: Language;
-  onLanguageChange: (lang: Language) => void;
   systemStatus: SystemStatus | null;
   onResetDemo: () => void;
 }
 
 export const SettingsPage: React.FC<SettingsPageProps> = ({
   language,
-  onLanguageChange,
   systemStatus,
   onResetDemo
 }) => {
   const t = getT(language);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      
-      {/* Title */}
-      <div className="bg-white p-5 rounded-2xl border border-[#E4EAF1] shadow-fintech-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-lg sm:text-xl font-extrabold text-[#10243A] tracking-tight">
-            {t.navSettings}
-          </h1>
-          <p className="text-xs text-[#667085] mt-0.5">
-            Shop details and demo controls
-          </p>
-        </div>
-      </div>
+    <div className="mx-auto max-w-7xl space-y-5 pb-3">
+      <PageHeader
+        eyebrow={language === 'hi' ? 'आपकी दुकान की जानकारी' : language === 'te' ? 'మీ దుకాణం వివరాలు' : 'Your shop details'}
+        icon={Store}
+        title={t.navSettings}
+        description={language === 'hi' ? 'डेमो की जानकारी देखें और नमूना डेटा फिर से शुरू करें।' : language === 'te' ? 'డెమో వివరాలు చూడండి, నమూనా డేటాను మళ్లీ ప్రారంభించండి.' : 'Review the demo details and start the sample data again if you need to.'}
+      />
 
       {/* Store Profile Card */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs">
+      <div className="rounded-[26px] border border-[#E4EAF1] bg-white p-5 shadow-[0_10px_28px_-24px_rgba(16,36,58,0.7)] sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-xl bg-[#EBF7FF] flex items-center justify-center text-[#002970] border border-[#B9E6FE]">
             <Store className="w-5 h-5" />
@@ -54,43 +47,43 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 text-xs">
-          <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
+          <div className="rounded-2xl border border-[#E4EAF1] bg-gradient-to-br from-white to-[#F8FCFE] p-4">
             <span className="text-[#667085] font-bold uppercase tracking-wider text-[10px]">Merchant Name</span>
             <div className="font-extrabold text-[#10243A] text-sm mt-1">{systemStatus?.store_profile.name || "Sharma General Store"}</div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
+          <div className="rounded-2xl border border-[#E4EAF1] bg-gradient-to-br from-white to-[#F8FCFE] p-4">
             <span className="text-[#667085] font-bold uppercase tracking-wider text-[10px]">Category & Trade</span>
             <div className="font-extrabold text-[#10243A] text-sm mt-1">{systemStatus?.store_profile.category || "Kirana & Daily Needs"}</div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
+          <div className="rounded-2xl border border-[#E4EAF1] bg-gradient-to-br from-white to-[#F8FCFE] p-4">
             <span className="text-[#667085] font-bold uppercase tracking-wider text-[10px]">Location</span>
             <div className="font-extrabold text-[#10243A] text-sm mt-1">{systemStatus?.store_profile.city || "Sector 15, Noida, UP"}</div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
+          <div className="rounded-2xl border border-[#E4EAF1] bg-gradient-to-br from-white to-[#F8FCFE] p-4">
             <span className="text-[#667085] font-bold uppercase tracking-wider text-[10px]">Sample UPI ID</span>
             <div className="font-bold text-[#002970] text-sm mt-1">{systemStatus?.store_profile.upi_id || "sharmastore@paytm"}</div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
+          <div className="rounded-2xl border border-[#E4EAF1] bg-gradient-to-br from-white to-[#F8FCFE] p-4">
             <span className="text-[#667085] font-bold uppercase tracking-wider text-[10px]">Sample Soundbox number</span>
             <div className="font-bold text-[#027A48] text-sm mt-1 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#12B76A]"></span>
+              <span className="w-2 h-2 rounded-full bg-[#00A8E0]"></span>
               <span>{systemStatus?.store_profile.soundbox_id || "PSB-99214-NOIDA"}</span>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
+          <div className="rounded-2xl border border-[#E4EAF1] bg-gradient-to-br from-white to-[#F8FCFE] p-4">
             <span className="text-[#667085] font-bold uppercase tracking-wider text-[10px]">Environment Mode</span>
-            <div className="font-bold text-[#002970] text-sm mt-1">Hackathon Prototype (Sandbox)</div>
+            <div className="font-bold text-[#002970] text-sm mt-1">{language === 'hi' ? 'सिर्फ़ डेमो' : language === 'te' ? 'డెమో మాత్రమే' : 'Demo only'}</div>
           </div>
         </div>
       </div>
 
       {/* Demo service and privacy note */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs">
+      <div className="rounded-[26px] border border-[#E4EAF1] bg-white p-5 shadow-[0_10px_28px_-24px_rgba(16,36,58,0.7)] sm:p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-xl bg-[#ECFDF3] flex items-center justify-center text-[#12B76A] border border-[#A6F4C5]">
             <Cpu className="w-5 h-5" />
@@ -124,7 +117,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
       </div>
 
       {/* Demo Sandbox Reset */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 rounded-[26px] border border-[#E4EAF1] bg-gradient-to-br from-white to-[#FFF8F5] p-5 shadow-[0_10px_28px_-24px_rgba(16,36,58,0.7)] sm:flex-row sm:items-center sm:p-6">
         <div>
           <h2 className="text-sm sm:text-base font-extrabold text-[#10243A]">
             Start the demo again
@@ -136,7 +129,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
 
         <button
           onClick={onResetDemo}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FEF3F2] hover:bg-[#FEE4E2] text-[#B42318] font-bold text-xs border border-[#FECDCA] transition-colors shadow-xs"
+          className="flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#FECDCA] bg-[#FEF3F2] px-4 text-sm font-bold text-[#B42318] shadow-sm transition-colors hover:bg-[#FEE4E2]"
         >
           <RotateCcw className="w-4 h-4" />
           <span>Reset demo data</span>

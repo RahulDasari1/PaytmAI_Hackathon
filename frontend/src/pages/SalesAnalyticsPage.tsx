@@ -3,36 +3,23 @@ import {
   TrendingUp, 
   TrendingDown, 
   Calendar, 
-  Clock, 
-  CreditCard, 
-  BarChart2,
-  Layers,
-  ArrowRight
+  ShoppingBag,
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  ResponsiveContainer, 
-  CartesianGrid,
-  Cell
-} from 'recharts';
-import { Language, ProductPerformanceItem, CategoryPerformanceItem } from '../types';
+import { Language, ProductPerformanceItem } from '../types';
 import { getT } from '../i18n';
 import { api, API_BASE } from '../services/api';
+import { PageHeader } from '../components/PageHeader';
 
 interface SalesAnalyticsPageProps {
   language: Language;
-  onNavigate: (tab: string) => void;
 }
 
-export const SalesAnalyticsPage: React.FC<SalesAnalyticsPageProps> = ({ language, onNavigate }) => {
+export const SalesAnalyticsPage: React.FC<SalesAnalyticsPageProps> = ({ language }) => {
   const t = getT(language);
   const [hourlyData, setHourlyData] = useState<any[]>([]);
   const [comparison, setComparison] = useState<any>(null);
-  const [categories, setCategories] = useState<CategoryPerformanceItem[]>([]);
   const [products, setProducts] = useState<ProductPerformanceItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -43,17 +30,14 @@ export const SalesAnalyticsPage: React.FC<SalesAnalyticsPageProps> = ({ language
   const loadSalesData = async () => {
     setLoading(true);
     try {
-      const [prodRes, catRes] = await Promise.all([
+      const [prodRes, hourlyRes, compareRes] = await Promise.all([
         api.getProducts('7d', 10),
-        api.getCategories('7d')
+        fetch(`${API_BASE}/sales/hourly?range_key=7d`).then(r => r.json()),
+        fetch(`${API_BASE}/sales/compare`).then(r => r.json())
       ]);
-
-      const hourlyRes = await fetch(`${API_BASE}/sales/hourly?range_key=7d`).then(r => r.json());
-      const compareRes = await fetch(`${API_BASE}/sales/compare`).then(r => r.json());
 
       setHourlyData(hourlyRes.hourly_data || []);
       setComparison(compareRes);
-      setCategories(catRes);
       setProducts(prodRes);
     } catch (err) {
       console.error('Failed to load sales analytics:', err);
@@ -70,171 +54,211 @@ export const SalesAnalyticsPage: React.FC<SalesAnalyticsPageProps> = ({ language
     }).format(val);
   };
 
+  const timePeriods = [
+    {
+      startHour: 7,
+      endHour: 11,
+      label: language === 'hi' ? 'सुबह' : language === 'te' ? 'ఉదయం' : 'Morning',
+      range: language === 'hi' ? 'सुबह 7–11 बजे' : language === 'te' ? 'ఉదయం 7–11' : '7–11 AM'
+    },
+    {
+      startHour: 12,
+      endHour: 16,
+      label: language === 'hi' ? 'दोपहर' : language === 'te' ? 'మధ్యాహ్నం' : 'Afternoon',
+      range: language === 'hi' ? 'दोपहर 12–4 बजे' : language === 'te' ? 'మధ్యాహ్నం 12–4' : '12–4 PM'
+    },
+    {
+      startHour: 17,
+      endHour: 22,
+      label: language === 'hi' ? 'शाम' : language === 'te' ? 'సాయంత్రం' : 'Evening',
+      range: language === 'hi' ? 'शाम 5–10 बजे' : language === 'te' ? 'సాయంత్రం 5–10' : '5–10 PM'
+    }
+  ].map((period) => ({
+    ...period,
+    transactions: hourlyData
+      .filter((hour) => hour.hour >= period.startHour && hour.hour <= period.endHour)
+      .reduce((total, hour) => total + hour.transactions, 0)
+  }));
+  const busiestPeriod = timePeriods
+    .filter((period) => period.transactions > 0)
+    .sort((a, b) => b.transactions - a.transactions)[0];
+  const maxPeriodTransactions = Math.max(...timePeriods.map((period) => period.transactions), 1);
+
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      
-      {/* Page Title */}
-      <div className="bg-white p-5 rounded-2xl border border-[#E4EAF1] shadow-fintech-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-lg sm:text-xl font-extrabold text-[#10243A] tracking-tight">
-            {t.navSales}
-          </h1>
-          <p className="text-xs text-[#667085] mt-0.5">
-            Transaction velocity, period-over-period variance diagnosis, and hourly footfall windows
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="px-3 py-1.5 rounded-xl bg-[#EBF7FF] text-[#002970] border border-[#B9E6FE] text-xs font-bold">
-            Recent 7 Days vs Prior 7 Days
+    <div className="mx-auto max-w-7xl space-y-5 pb-3" aria-busy={loading}>
+      <PageHeader
+        eyebrow={language === 'hi' ? 'बिक्री का हाल' : language === 'te' ? 'అమ్మకాల వివరాలు' : 'Your sales at a glance'}
+        icon={TrendingUp}
+        title={t.navSales}
+        description={language === 'hi'
+          ? 'पिछले हफ़्ते से तुलना करें और देखें कि कौन-सा सामान ज़्यादा बिक रहा है।'
+          : language === 'te'
+            ? 'గత వారంతో పోల్చి, ఏ వస్తువులు ఎక్కువగా అమ్ముడవుతున్నాయో చూడండి.'
+            : 'Compare this week with last week and see what is selling well.'}
+        action={
+          <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#CBE8F6] bg-white/80 px-3.5 text-xs font-bold text-[#17456A] shadow-sm">
+            <Calendar className="h-4 w-4 text-[#0087BD]" aria-hidden="true" />
+            {language === 'hi' ? 'पिछले 7 दिन' : language === 'te' ? 'గత 7 రోజులు' : 'Last 7 days'}
           </span>
-        </div>
-      </div>
+        }
+      />
 
-      {/* Period Comparison Engine (The Seeded Dip Analysis) */}
+      {/* Week-to-week comparison */}
       {comparison && (
-        <div className="bg-gradient-to-br from-[#002970] via-[#0A1E42] to-[#10243A] rounded-2xl p-6 text-white shadow-fintech-md">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-white/10 pb-3">
+        <section className="relative overflow-hidden rounded-[26px] border border-[#CFE8F5] bg-gradient-to-br from-white via-white to-[#EAF8FF] p-5 shadow-[0_12px_30px_-24px_rgba(0,41,112,0.5)] sm:p-6">
+          <div className="pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full bg-[#00BAF2]/10" aria-hidden="true" />
+          <div className="relative mb-4 flex flex-col gap-3 border-b border-[#E4EAF1] pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-[#00BAF2]" />
-              <h2 className="text-sm sm:text-base font-extrabold text-white">
-                Period Comparison Engine: Why Sales Changed
-              </h2>
-            </div>
-            <div className={`px-2.5 py-1 rounded-full text-xs font-bold tabular-nums ${
-              comparison.sales_growth_pct < 0 
-                ? 'bg-rose-500/20 text-rose-300 border border-rose-400/30' 
-                : 'bg-emerald-500/20 text-emerald-300'
-            }`}>
-              {comparison.sales_growth_pct > 0 ? `+${comparison.sales_growth_pct}%` : `${comparison.sales_growth_pct}% Weekly Variance`}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-              <div className="text-[11px] text-sky-200 font-semibold uppercase">Recent 7 Days Revenue</div>
-              <div className="text-2xl font-extrabold text-white mt-1 tabular-nums">{formatINR(comparison.period1.sales)}</div>
-              <div className="text-xs text-sky-200 mt-0.5">{comparison.period1.transactions} orders recorded</div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-              <div className="text-[11px] text-sky-200 font-semibold uppercase">Prior 7 Days Revenue</div>
-              <div className="text-2xl font-extrabold text-white mt-1 tabular-nums">{formatINR(comparison.period2.sales)}</div>
-              <div className="text-xs text-sky-200 mt-0.5">{comparison.period2.transactions} orders recorded</div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-              <div className="text-[11px] text-rose-300 font-semibold uppercase">Net Variance (Drop)</div>
-              <div className="text-2xl font-extrabold text-rose-300 mt-1 tabular-nums">
-                -₹{Math.abs(comparison.sales_difference).toLocaleString()}
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#E3F6FF] text-[#007EAE]">
+                {comparison.sales_growth_pct < 0
+                  ? <TrendingDown className="h-5 w-5" aria-hidden="true" />
+                  : <TrendingUp className="h-5 w-5" aria-hidden="true" />}
+              </span>
+              <div>
+                <h2 className="text-base font-extrabold text-[#10243A]">
+                  {language === 'hi' ? 'पिछले हफ़्ते से बिक्री की तुलना' : language === 'te' ? 'గత వారంతో అమ్మకాల పోలిక' : 'How did sales change?'}
+                </h2>
+                <p className="text-xs text-[#667085]">{language === 'hi' ? 'इस हफ़्ते और पिछले हफ़्ते का हिसाब' : language === 'te' ? 'ఈ వారం, గత వారం లెక్కలు' : 'This week compared with the week before'}</p>
               </div>
-              <div className="text-xs text-slate-300 mt-0.5">Primary Dip: Evening Footfall</div>
+            </div>
+            <div className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-extrabold tabular-nums ${
+              comparison.sales_growth_pct < 0
+                ? 'bg-[#FEF3F2] text-[#B42318]'
+                : 'bg-[#ECFDF3] text-[#027A48]'
+            }`}>
+              {comparison.sales_growth_pct < 0
+                ? <ArrowDownRight className="h-4 w-4" aria-hidden="true" />
+                : <ArrowUpRight className="h-4 w-4" aria-hidden="true" />}
+              {comparison.sales_growth_pct > 0 ? '+' : ''}{comparison.sales_growth_pct}%
+              <span className="text-xs font-semibold">{language === 'hi' ? 'बदलाव' : language === 'te' ? 'మార్పు' : 'change'}</span>
             </div>
           </div>
 
-          {/* Department Variance Breakdown */}
-          <div className="space-y-2">
-            <div className="text-xs font-bold text-sky-200 uppercase tracking-wider">
-              Department Variance Breakdown
+          <div className="relative grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-[#D5EDF8] bg-white/85 p-4">
+              <div className="text-xs font-semibold text-[#667085]">{language === 'hi' ? 'इस हफ़्ते' : language === 'te' ? 'ఈ వారం' : 'This week'}</div>
+              <div className="mt-1 text-2xl font-extrabold text-[#002970] tabular-nums">{formatINR(comparison.period1.sales)}</div>
+              <div className="mt-1 text-xs text-[#667085]">{comparison.period1.transactions} {language === 'hi' ? 'बिल' : language === 'te' ? 'బిల్లులు' : 'bills'}</div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {comparison.category_changes?.slice(0, 4).map((c: any) => (
-                <div key={c.category} className="p-3 rounded-xl bg-black/25 border border-white/5">
-                  <div className="text-xs font-bold text-white truncate">{c.category}</div>
-                  <div className="flex items-center justify-between mt-1 text-xs">
-                    <span className="text-slate-300">Diff:</span>
-                    <span className={`font-bold tabular-nums ${c.diff_amount < 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
-                      {c.diff_amount < 0 ? `-₹${Math.abs(c.diff_amount)}` : `+₹${c.diff_amount}`} ({c.change_pct}%)
+
+            <div className="rounded-2xl border border-[#E4EAF1] bg-[#F8FAFC] p-4">
+              <div className="text-xs font-semibold text-[#667085]">{language === 'hi' ? 'पिछला हफ़्ता' : language === 'te' ? 'గత వారం' : 'Last week'}</div>
+              <div className="mt-1 text-2xl font-extrabold text-[#10243A] tabular-nums">{formatINR(comparison.period2.sales)}</div>
+              <div className="mt-1 text-xs text-[#667085]">{comparison.period2.transactions} {language === 'hi' ? 'बिल' : language === 'te' ? 'బిల్లులు' : 'bills'}</div>
+            </div>
+
+            <div className={`rounded-2xl border p-4 ${comparison.sales_difference < 0 ? 'border-[#FECDCA] bg-[#FFF8F7]' : 'border-[#A6F4C5] bg-[#F4FCF7]'}`}>
+              <div className="text-xs font-semibold text-[#667085]">{language === 'hi' ? 'फ़र्क' : language === 'te' ? 'తేడా' : 'Difference'}</div>
+              <div className={`mt-1 text-2xl font-extrabold tabular-nums ${comparison.sales_difference < 0 ? 'text-[#B42318]' : 'text-[#027A48]'}`}>
+                {comparison.sales_difference < 0 ? '−' : '+'}{formatINR(Math.abs(comparison.sales_difference))}
+              </div>
+              <div className="mt-1 text-xs text-[#667085]">{language === 'hi' ? 'कुल बिक्री का अंतर' : language === 'te' ? 'మొత్తం అమ్మకాల తేడా' : 'Total sales difference'}</div>
+            </div>
+          </div>
+
+          {comparison.category_changes?.length > 0 && (
+            <div className="relative mt-5">
+              <h3 className="mb-2 text-sm font-bold text-[#344054]">
+                {language === 'hi' ? 'किस सामान में सबसे ज़्यादा बदलाव हुआ?' : language === 'te' ? 'ఏ వస్తువులలో ఎక్కువ మార్పు వచ్చింది?' : 'Which items changed the most?'}
+              </h3>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                {comparison.category_changes.slice(0, 4).map((category: any) => (
+                  <div key={category.category} className="flex items-center justify-between gap-2 rounded-xl border border-[#E4EAF1] bg-white/80 px-3 py-2.5">
+                    <span className="min-w-0 truncate text-xs font-semibold text-[#344054]">{category.category}</span>
+                    <span className={`shrink-0 text-xs font-extrabold tabular-nums ${category.diff_amount < 0 ? 'text-[#B42318]' : 'text-[#027A48]'}`}>
+                      {category.diff_amount < 0 ? '−' : '+'}{formatINR(Math.abs(category.diff_amount))}
                     </span>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
+          )}
+        </section>
       )}
 
-      {/* Hourly Footfall Chart */}
-      <div className="bg-white rounded-2xl p-5 border border-[#E4EAF1] shadow-fintech-xs">
+      {/* Busy times */}
+      <section className="rounded-[26px] border border-[#E4EAF1] bg-white p-5 shadow-[0_10px_28px_-24px_rgba(16,36,58,0.7)] sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-sm font-bold text-[#10243A]">
-              {t.peakHours}
+            <h2 className="text-base font-extrabold text-[#10243A]">
+              {language === 'hi' ? 'आपकी दुकान के व्यस्त घंटे' : language === 'te' ? 'మీ దుకాణం రద్దీ సమయాలు' : 'When do customers visit?'}
             </h2>
-            <p className="text-xs text-[#667085]">
-              Order volume across store hours (07:00 to 22:00)
+            <p className="text-sm text-[#667085]">
+              {language === 'hi' ? 'दिन के किस समय ज़्यादा बिल बनते हैं।' : language === 'te' ? 'రోజులో ఏ సమయంలో ఎక్కువ బిల్లులు వస్తాయో.' : 'See when more bills are made during the day.'}
             </p>
           </div>
-          <div className="flex items-center gap-2 text-xs font-bold flex-wrap">
-            <span className="text-[#002970] bg-[#EBF7FF] px-2.5 py-1 rounded-lg border border-[#B9E6FE]">
-              Morning Rush: 09:00 - 11:00 AM
-            </span>
-            <span className="text-[#027A48] bg-[#ECFDF3] px-2.5 py-1 rounded-lg border border-[#A6F4C5]">
-              Evening Prime: 17:30 - 20:30 PM
-            </span>
+          <div className="inline-flex w-fit items-center gap-2 rounded-xl bg-[#EAF8FF] px-3 py-2 text-xs font-bold text-[#005A83]">
+            <span className="h-2 w-2 rounded-full bg-[#00A8E0]" />
+            {busiestPeriod
+              ? `${language === 'hi' ? 'सबसे ज़्यादा बिल' : language === 'te' ? 'ఎక్కువ బిల్లులు' : 'Most bills'}: ${busiestPeriod.label}`
+              : language === 'hi' ? 'अभी बिक्री की जानकारी नहीं है' : language === 'te' ? 'ప్రస్తుతం అమ్మకాల వివరాలు లేవు' : 'No sales data yet'}
           </div>
         </div>
 
-        <div className="h-64 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={hourlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F2F4F7" />
-              <XAxis dataKey="hour_label" tick={{ fontSize: 11, fill: '#667085' }} />
-              <YAxis tick={{ fontSize: 11, fill: '#667085' }} />
-              <Tooltip 
-                formatter={(val: any, name?: any) => [
-                  name === 'transactions' ? `${val} orders` : `₹${val}`,
-                  name === 'transactions' ? 'Transactions' : 'Sales'
-                ]}
-                contentStyle={{ backgroundColor: '#10243A', borderRadius: '10px', color: '#fff', border: 'none', fontSize: '12px' }}
-              />
-              <Bar dataKey="transactions" radius={[6, 6, 0, 0]}>
-                {hourlyData.map((entry, index) => {
-                  const h = entry.hour;
-                  const isPeak = (h >= 8 && h <= 10) || (h >= 17 && h <= 20);
-                  return <Cell key={`cell-${index}`} fill={isPeak ? '#00BAF2' : '#CBD5E1'} />;
-                })}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+        {busiestPeriod ? (
+          <div className="grid gap-4" aria-label="Bills by time of day">
+            {timePeriods.map((period) => (
+              <div key={period.startHour}>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold text-[#344054]">{period.label}</p>
+                    <p className="text-xs text-[#667085]">{period.range}</p>
+                  </div>
+                  <p className="shrink-0 text-sm font-bold tabular-nums text-[#10243A]">
+                    {period.transactions} {language === 'hi' ? 'बिल' : language === 'te' ? 'బిల్లులు' : 'bills'}
+                  </p>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#EDF3F7]" aria-hidden="true">
+                  <div
+                    className="h-full rounded-full bg-[#00A8E0]"
+                    style={{ width: `${(period.transactions / maxPeriodTransactions) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-2xl bg-[#F8FAFC] p-4 text-sm text-[#667085]">
+            {language === 'hi' ? 'अभी इस हफ़्ते के बिल उपलब्ध नहीं हैं।' : language === 'te' ? 'ఈ వారం బిల్లులు ఇంకా అందుబాటులో లేవు.' : 'Bills from this week will appear here.'}
+          </p>
+        )}
+      </section>
+
+      <section className="rounded-[26px] border border-[#E4EAF1] bg-white p-5 shadow-[0_10px_28px_-24px_rgba(16,36,58,0.7)] sm:p-6">
+        <div className="mb-4 flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#E7F8EF] text-[#027A48]">
+            <ShoppingBag className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div>
+            <h2 className="text-base font-extrabold text-[#10243A]">
+              {language === 'hi' ? 'इस हफ़्ते ज़्यादा बिकने वाला सामान' : language === 'te' ? 'ఈ వారం ఎక్కువగా అమ్ముడైన వస్తువులు' : 'Popular in your shop'}
+            </h2>
+            <p className="text-sm text-[#667085]">{language === 'hi' ? 'पिछले 7 दिनों के बिलों से' : language === 'te' ? 'గత 7 రోజుల బిల్లుల ఆధారంగా' : 'Based on bills from the last 7 days'}</p>
+          </div>
         </div>
-      </div>
-
-      {/* Top 10 Best Performing Products Table */}
-      <div className="bg-white rounded-2xl p-5 border border-[#E4EAF1] shadow-fintech-xs">
-        <h2 className="text-sm font-bold text-[#10243A] mb-0.5">
-          Top Performing Items (Last 7 Days)
-        </h2>
-        <p className="text-xs text-[#667085] mb-4">
-          Ranked by net collection revenue from digital ledger
-        </p>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-[#E4EAF1] text-[#667085] font-bold uppercase tracking-wider text-[10px]">
-                <th className="pb-3">Product Name</th>
-                <th className="pb-3">Category</th>
-                <th className="pb-3 text-right">Units Sold</th>
-                <th className="pb-3 text-right">Total Revenue</th>
-                <th className="pb-3 text-right">Avg Order Ticket</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F2F4F7]">
-              {products.map((prod) => (
-                <tr key={prod.product_name} className="hover:bg-[#F8FAFC] transition-colors">
-                  <td className="py-3 font-bold text-[#10243A]">{prod.product_name}</td>
-                  <td className="py-3 text-[#667085]">{prod.category}</td>
-                  <td className="py-3 text-right font-semibold text-[#344054] tabular-nums">{prod.units_sold}</td>
-                  <td className="py-3 text-right font-bold text-[#002970] tabular-nums">{formatINR(prod.revenue)}</td>
-                  <td className="py-3 text-right font-medium text-[#475467] tabular-nums">₹{prod.avg_order_value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
+        {loading ? (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" aria-label="Loading popular items">
+            {[0, 1, 2, 3].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-[#F2F8FB]" />)}
+          </div>
+        ) : products.length > 0 ? (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {products.slice(0, 6).map((product, index) => (
+              <article key={product.product_name} className="group flex items-center gap-3 rounded-2xl border border-[#E4EAF1] bg-gradient-to-r from-white to-[#F8FCFE] p-4 transition-all hover:border-[#B9E6FE] hover:shadow-[0_12px_26px_-22px_rgba(0,41,112,0.55)]">
+                <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-sm font-extrabold ${index % 3 === 0 ? 'bg-[#EAF8FF] text-[#006B9B]' : index % 3 === 1 ? 'bg-[#E7F8EF] text-[#027A48]' : 'bg-[#FFF3DB] text-[#A15C00]'}`}>
+                  {index + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate text-sm font-bold text-[#10243A]">{product.product_name}</h3>
+                  <p className="mt-0.5 text-xs text-[#667085]">{product.category} · {product.units_sold} {language === 'hi' ? 'बिके' : language === 'te' ? 'అమ్ముడయ్యాయి' : 'sold'}</p>
+                </div>
+                <span className="shrink-0 text-right text-sm font-extrabold text-[#002970] tabular-nums">{formatINR(product.revenue)}</span>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-2xl bg-[#F8FAFC] p-4 text-sm text-[#667085]">{language === 'hi' ? 'अभी बिक्री की जानकारी उपलब्ध नहीं है।' : language === 'te' ? 'ప్రస్తుతం అమ్మకాల వివరాలు అందుబాటులో లేవు.' : 'Popular items will appear when sales are available.'}</p>
+        )}
+      </section>
     </div>
   );
 };

@@ -195,34 +195,49 @@ def run_copilot_query(query: str, language: Optional[str] = "en") -> Dict[str, A
         }
 
     # 4. Inventory / Stock recommendations
-    elif any(k in q for k in ["stock", "inventory", "reorder", "सामान", "स्टॉक", "స్టాక్", "ఆర్డర్"]):
+    elif any(k in q for k in [
+        "stock", "inventory", "reorder", "run out", "running out", "running low", "low stock", "stockout",
+        "सामान", "स्टॉक", "स्टॉक खत्म", "स्टॉक कम", "వస్తువులు", "స్టాక్", "తక్కువ"
+    ]):
         tool_name = "get_inventory_recommendations"
         data = execute_tool(tool_name, {"filter_urgency": "CRITICAL"})
 
-        crit_items = [f"• {item['name']} (बाकी: {item['current_stock']} यूनिट, केवल {item['estimated_days_remaining']} दिन का स्टॉक बचा है)" for item in data[:3]]
-        crit_items_en = [f"• **{item['name']}** (Current Stock: {item['current_stock']} units | Est. Days Remaining: {item['estimated_days_remaining']} days)" for item in data[:3]]
-        crit_items_te = [f"• **{item['name']}** (నిల్వ: {item['current_stock']} యూనిట్లు | మిగిలిన రోజులు: {item['estimated_days_remaining']} రోజులు)" for item in data[:3]]
-
-        if active_lang == "hi":
+        if not data:
+            if active_lang == "hi":
+                answer = "अभी कोई सामान तुरंत मंगाने की ज़रूरत नहीं दिख रही।"
+            elif active_lang == "te":
+                answer = "ప్రస్తుతం వెంటనే మళ్లీ తెప్పించాల్సిన వస్తువులు లేవు."
+            else:
+                answer = "Nothing needs urgent restocking right now."
+        elif active_lang == "hi":
+            items = [
+                f"• {item['name']}: {item['current_stock']} बाकी, लगभग {item['estimated_days_remaining']} दिन का स्टॉक"
+                for item in data[:3]
+            ]
             answer = (
-                f"📦 **इन्वेंटरी और स्टॉक अलर्ट:**\n\n"
-                f"निम्न आवश्यक उत्पादों का स्टॉक खत्म होने के कगार पर है:\n"
-                + "\n".join(crit_items) +
-                f"\n\n🚨 **कार्रवाई:** वीकेंड की बिक्री प्रभावित होने से पहले कृपया फॉर्च्यून सनफ्लावर ऑयल (48 यूनिट) और अमूल मिल्क (60 पैकेट) का रीऑर्डर तुरंत प्लेस करें।"
+                "ये चीज़ें जल्द खत्म हो सकती हैं:\n"
+                + "\n".join(items)
+                + "\n\nइन्हें अगले सप्लायर ऑर्डर में शामिल करने पर विचार करें। यह डेमो ऑर्डर नहीं करता।"
             )
         elif active_lang == "te":
+            items = [
+                f"• {item['name']}: {item['current_stock']} మిగిలి ఉన్నాయి, సుమారు {item['estimated_days_remaining']} రోజుల నిల్వ"
+                for item in data[:3]
+            ]
             answer = (
-                f"📦 **ఇన్వెంటరీ రీ-ఆర్డర్ హెచ్చరిక:**\n\n"
-                f"ఈ క్రింది ఉత్పత్తుల స్టాక్ అత్యవసరంగా అయిపోవడానికి సిద్ధంగా ఉంది:\n"
-                + "\n".join(crit_items_te) +
-                f"\n\n🚨 **చర్య:** వారాంతపు విక్రయాల నష్టం జరగకుండా వెంటనే రీ-ఆర్డర్ చేయండి."
+                "ఈ వస్తువుల నిల్వ త్వరలో అయిపోవచ్చు:\n"
+                + "\n".join(items)
+                + "\n\nతదుపరి సరఫరాదారు ఆర్డర్‌లో వీటిని చేర్చండి. ఈ డెమో ఆర్డర్ చేయదు."
             )
         else:
+            items = [
+                f"• {item['name']}: {item['current_stock']} left, about {item['estimated_days_remaining']} days"
+                for item in data[:3]
+            ]
             answer = (
-                f"📦 **Inventory Stockout & Reorder Alert:**\n\n"
-                f"The following essential items require immediate restocking:\n"
-                + "\n".join(crit_items_en) +
-                f"\n\n🚨 **Recommendation:** Place a simulated reorder for **Fortune Sunflower Oil (48 units)** and **Amul Milk (60 units)** to prevent stockout before weekend grocery shopping begins."
+                "These items may run out soon:\n"
+                + "\n".join(items)
+                + "\n\nConsider adding them to your next supplier order. This demo does not place orders."
             )
 
         return {
@@ -232,7 +247,7 @@ def run_copilot_query(query: str, language: Optional[str] = "en") -> Dict[str, A
             "tool_data": data,
             "answer": answer,
             "recommended_action": "VIEW_INVENTORY",
-            "cta_label": "Go to Inventory Assistant" if active_lang == "en" else ("इन्वेंटरी देखें" if active_lang == "hi" else "ఇన్వెంటరీ తెరవండి")
+            "cta_label": "Check stock" if active_lang == "en" else ("स्टॉक देखें" if active_lang == "hi" else "స్టాక్ చూడండి")
         }
 
     # 5. Which products to promote / marketing campaign creation

@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { 
-  Megaphone, 
-  Send, 
   Copy, 
   Check, 
   RotateCw, 
-  Sparkles, 
   Save, 
   Trash2, 
   Smartphone,
   ShieldCheck,
-  CheckCircle2,
-  Clock,
-  Users
+  Coffee,
+  Users,
+  ShoppingBag,
+  Gift,
+  Megaphone
 } from 'lucide-react';
 import { CampaignItem, Language } from '../types';
 import { getT } from '../i18n';
 import { api } from '../services/api';
+import { PageHeader } from '../components/PageHeader';
 
 interface CampaignStudioPageProps {
   language: Language;
@@ -30,7 +30,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
     presetContext?.objective || 'EVENING_FOOTFALL_BOOST'
   );
   const [audience, setAudience] = useState<string>('Evening Footfall Shoppers (85 customers)');
-  const [offerType, setOfferType] = useState<string>('COMBO_DEAL');
+  const offerType = 'COMBO_DEAL';
   const [selectedLang, setSelectedLang] = useState<Language>(language);
   const [channel, setChannel] = useState<'WhatsApp' | 'SMS'>('WhatsApp');
 
@@ -40,26 +40,23 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
   const [copied, setCopied] = useState<boolean>(false);
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [actionError, setActionError] = useState<string>('');
+  const [savedLoadError, setSavedLoadError] = useState<boolean>(false);
 
-  useEffect(() => {
-    loadSavedCampaigns();
-  }, []);
-
-  useEffect(() => {
-    generateDraft();
-  }, [objective, audience, offerType, selectedLang, channel]);
-
-  const loadSavedCampaigns = async () => {
+  const loadSavedCampaigns = useCallback(async () => {
     try {
       const list = await api.getCampaigns();
       setSavedCampaigns(list);
+      setSavedLoadError(false);
     } catch (err) {
       console.error('Failed to load campaigns:', err);
+      setSavedLoadError(true);
     }
-  };
+  }, []);
 
-  const generateDraft = async () => {
+  const generateDraft = useCallback(async () => {
     setLoading(true);
+    setActionError('');
     try {
       const res = await api.generateCampaignDraft({
         objective,
@@ -72,19 +69,35 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
       setEditableCopy(res.message_copy);
     } catch (err) {
       console.error('Draft generation error:', err);
+      setActionError('We could not prepare this sample message. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [objective, audience, offerType, selectedLang, channel]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(editableCopy);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+  useEffect(() => {
+    void loadSavedCampaigns();
+  }, [loadSavedCampaigns]);
+
+  useEffect(() => {
+    void generateDraft();
+  }, [generateDraft]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(editableCopy);
+      setCopied(true);
+      setActionError('');
+      setTimeout(() => setCopied(false), 2500);
+    } catch (err) {
+      console.error('Could not copy the offer message:', err);
+      setActionError('We could not copy the message. Check browser clipboard permission and try again.');
+    }
   };
 
   const handleSave = async () => {
-    if (!draft) return;
+    if (!draft || loading) return;
+    setActionError('');
     try {
       await api.saveCampaign({
         ...draft,
@@ -96,74 +109,81 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
       loadSavedCampaigns();
     } catch (err) {
       console.error('Save campaign error:', err);
+      setActionError('We could not save this demo draft. Please try again.');
     }
   };
 
   const handleDelete = async (id: string) => {
+    setActionError('');
     try {
       await api.deleteCampaign(id);
       loadSavedCampaigns();
     } catch (err) {
       console.error('Delete error:', err);
+      setActionError('We could not delete this demo draft. Please try again.');
     }
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      
-      {/* Page Title */}
-      <div className="bg-white p-5 rounded-2xl border border-[#E4EAF1] shadow-fintech-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-lg sm:text-xl font-extrabold text-[#10243A] tracking-tight">
-            {t.createCampaignTitle}
-          </h1>
-          <p className="text-xs text-[#667085] mt-0.5">
-            Write a friendly message for customers. This demo will not send it.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5] flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#12B76A]" />
-            <span>Demo only · Nothing will be sent</span>
+    <div className="mx-auto max-w-7xl space-y-5 pb-3">
+      <PageHeader
+        eyebrow={language === 'hi' ? 'ग्राहकों से जुड़ें' : language === 'te' ? 'కస్టమర్లతో కలవండి' : 'A little note for your customers'}
+        icon={Megaphone}
+        title={t.createCampaignTitle}
+        description={language === 'hi'
+          ? 'एक आसान संदेश बनाएँ, पढ़ें और चाहें तो कॉपी करें। यह डेमो किसी को संदेश नहीं भेजता।'
+          : language === 'te'
+            ? 'సులభమైన సందేశాన్ని తయారు చేసి, చదివి, కావాలంటే కాపీ చేయండి. ఈ డెమో ఎవరికీ పంపదు.'
+            : 'Write a friendly message, review it, and copy it if you like. This demo will not send it.'}
+        action={
+          <span className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-[#A6F4C5] bg-[#ECFDF3] px-3 text-xs font-bold text-[#027A48]">
+            <ShieldCheck className="h-4 w-4 text-[#12B76A]" aria-hidden="true" />
+            {language === 'hi' ? 'सिर्फ़ डेमो · नहीं भेजा जाएगा' : language === 'te' ? 'డెమో మాత్రమే · పంపబడదు' : 'Demo only · Not sent'}
           </span>
-        </div>
-      </div>
+        }
+      />
+      {actionError && <p className="rounded-2xl border border-[#FECDCA] bg-[#FFF8F7] p-4 text-sm text-[#B42318]" role="alert">{actionError}</p>}
 
       {/* Main Studio: Form (Left) & Mobile Handset Preview (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left Form: Guided Parameters (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs space-y-5">
+        <div className="space-y-5 rounded-[26px] border border-[#E4EAF1] bg-white p-5 shadow-[0_10px_28px_-24px_rgba(16,36,58,0.7)] sm:p-6 lg:col-span-7">
           
           {/* Step 1: Objective */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold text-[#667085] uppercase tracking-wider">
+              <label className="text-sm font-bold text-[#344054]">
                 1. What would you like to do?
               </label>
-              <span className="text-[11px] text-[#002970] font-semibold">Step 1 of 5</span>
+              <span className="rounded-full bg-[#EAF8FF] px-2.5 py-1 text-[11px] font-bold text-[#006B9B]">Step 1 of 5</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {[
-                { id: 'EVENING_FOOTFALL_BOOST', title: 'Invite evening shoppers', desc: 'Share a simple tea-time offer' },
-                { id: 'WIN_BACK_INACTIVE', title: 'Welcome regulars back', desc: 'Send a friendly note to past customers' },
-                { id: 'REPEAT_PURCHASES', title: 'Encourage weekend shopping', desc: 'Suggest useful items for the weekend' },
-                { id: 'PRODUCT_PROMOTION', title: 'Share a fresh dairy offer', desc: 'Let nearby customers know what is fresh' }
+              { id: 'EVENING_FOOTFALL_BOOST', title: 'Invite evening shoppers', desc: 'Share a simple tea-time offer', icon: Coffee, style: 'bg-[#FFF3DB] text-[#A15C00]' },
+              { id: 'WIN_BACK_INACTIVE', title: 'Welcome regulars back', desc: 'Share a friendly note with past shoppers', icon: Users, style: 'bg-[#EAF8FF] text-[#006B9B]' },
+              { id: 'REPEAT_PURCHASES', title: 'Encourage weekend shopping', desc: 'Suggest useful items for the weekend', icon: ShoppingBag, style: 'bg-[#E7F8EF] text-[#027A48]' },
+              { id: 'PRODUCT_PROMOTION', title: 'Share what is fresh', desc: 'Let nearby shoppers know what is new', icon: Gift, style: 'bg-[#F4EDFF] text-[#6941C6]' }
               ].map((obj) => (
                 <button
                   key={obj.id}
                   type="button"
                   onClick={() => setObjective(obj.id)}
-                  className={`p-3 rounded-xl text-left border transition-all ${
+                className={`relative flex min-h-24 items-start gap-3 overflow-hidden rounded-[20px] border p-3.5 text-left transition-all ${
                     objective === obj.id
-                      ? 'border-[#002970] bg-[#F0F9FF] text-[#002970] shadow-xs ring-1 ring-[#002970]'
-                      : 'border-[#E4EAF1] hover:border-slate-300 bg-white text-[#344054]'
+                    ? 'border-[#89D5F2] bg-gradient-to-br from-[#F0FAFF] to-white text-[#002970] shadow-[0_10px_24px_-20px_rgba(0,41,112,0.75)] ring-1 ring-[#89D5F2]'
+                    : 'border-[#E4EAF1] bg-gradient-to-br from-white to-[#F8FCFE] text-[#344054] hover:border-[#B9E6FE] hover:shadow-sm'
                   }`}
                 >
-                  <div className="text-xs font-bold">{obj.title}</div>
-                  <div className="text-[11px] text-[#667085] mt-0.5 leading-snug">{obj.desc}</div>
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${obj.style}`}>
+                  <obj.icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold">{obj.title}</span>
+                  <span className="mt-1 block text-xs leading-snug text-[#667085]">{obj.desc}</span>
+                </span>
+                {objective === obj.id && <Check className="h-4 w-4 shrink-0 text-[#0087BD]" aria-label="Selected" />}
                 </button>
               ))}
             </div>
@@ -172,7 +192,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
           {/* Step 2: Audience & Channel */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-[#667085] uppercase tracking-wider mb-1.5">
+              <label className="mb-1.5 block text-sm font-bold text-[#344054]">
                 2. Who should see this?
               </label>
               <select
@@ -188,7 +208,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#667085] uppercase tracking-wider mb-1.5">
+              <label className="mb-1.5 block text-sm font-bold text-[#344054]">
                 3. Message channel
               </label>
               <div className="flex rounded-xl bg-[#F2F4F7] p-1 border border-[#E4EAF1]">
@@ -216,7 +236,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
 
           {/* Step 3: Language Selector */}
           <div>
-            <label className="block text-xs font-bold text-[#667085] uppercase tracking-wider mb-1.5">
+            <label className="mb-1.5 block text-sm font-bold text-[#344054]">
               4. Message language
             </label>
             <div className="flex gap-2">
@@ -244,16 +264,17 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
           {/* Step 4: Editable Message Copy */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-bold text-[#667085] uppercase tracking-wider">
+              <label className="text-sm font-bold text-[#344054]">
                 5. Review your message
               </label>
               <button
                 type="button"
-                onClick={generateDraft}
+                onClick={() => void generateDraft()}
+                disabled={loading}
                 className="text-xs text-[#002970] hover:underline flex items-center gap-1 font-semibold"
               >
                 <RotateCw className="w-3 h-3" />
-                <span>Write another version</span>
+                <span>{loading ? 'Writing…' : 'Write another version'}</span>
               </button>
             </div>
             <textarea
@@ -269,11 +290,11 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center gap-3 border-t border-[#E4EAF1] pt-4">
             <button
               type="button"
               onClick={handleCopy}
-              className="flex-1 py-2.5 px-4 rounded-xl border border-[#E4EAF1] hover:border-slate-300 bg-white text-[#344054] font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-fintech-xs"
+              className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#D5E3EB] bg-white px-4 text-sm font-bold text-[#344054] shadow-sm transition-all hover:border-[#9ECFE4] hover:bg-[#F8FCFE]"
             >
               {copied ? <Check className="w-4 h-4 text-[#12B76A]" /> : <Copy className="w-4 h-4 text-[#667085]" />}
               <span>{copied ? t.copiedToast : t.copyMessage}</span>
@@ -282,7 +303,8 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
             <button
               type="button"
               onClick={handleSave}
-              className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#002970] to-[#00BAF2] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-fintech-sm hover:opacity-95 transition-all"
+              disabled={loading || !editableCopy.trim()}
+              className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#002970] to-[#008FC2] px-4 text-sm font-bold text-white shadow-[0_8px_18px_-12px_rgba(0,41,112,0.65)] transition-all hover:-translate-y-0.5 hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{saveSuccess ? "Draft saved · not sent" : "Save demo draft"}</span>
@@ -300,7 +322,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
           </div>
 
           {/* Smartphone Frame */}
-          <div className="w-[280px] sm:w-[305px] h-[510px] bg-[#10243A] rounded-[36px] p-2.5 shadow-2xl border-4 border-slate-700 flex flex-col justify-between relative overflow-hidden">
+          <div aria-busy={loading} className="relative flex h-[510px] w-full max-w-[305px] flex-col justify-between overflow-hidden rounded-[36px] border-4 border-slate-700 bg-[#10243A] p-2.5 shadow-2xl">
             
             {/* Top Speaker notch */}
             <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-24 h-3.5 bg-slate-800 rounded-full z-10 flex items-center justify-center">
@@ -335,7 +357,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
                     {editableCopy}
                   </p>
                   <div className="text-[9px] text-[#98A2B3] text-right mt-1.5 flex items-center justify-end gap-1">
-                    <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span>Preview</span>
                   </div>
                 </div>
 
@@ -358,24 +380,30 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
       </div>
 
       {/* Persistent Saved Campaigns Section */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs">
+      <div className="rounded-[26px] border border-[#E4EAF1] bg-white p-5 shadow-[0_10px_28px_-24px_rgba(16,36,58,0.7)] sm:p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-sm font-bold text-[#10243A]">
+            <h2 className="text-base font-extrabold text-[#10243A]">
               Saved demo drafts
             </h2>
             <p className="text-xs text-[#667085]">
               These drafts are saved in this demo and are not sent to customers.
             </p>
           </div>
-          <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#EBF7FF] text-[#002970] border border-[#B9E6FE] tabular-nums">
-            {savedCampaigns.length} Campaigns
+          <span className="rounded-full border border-[#B9E6FE] bg-[#EAF8FF] px-3 py-1.5 text-xs font-bold text-[#006B9B] tabular-nums">
+            {savedCampaigns.length} {language === 'hi' ? 'ड्राफ्ट' : language === 'te' ? 'డ్రాఫ్ట్‌లు' : 'drafts'}
           </span>
         </div>
 
-        <div className="divide-y divide-[#F2F4F7]">
+        {savedLoadError && <p className="mb-3 rounded-xl border border-[#FECDCA] bg-[#FFF8F7] p-3 text-sm text-[#B42318]" role="alert">We could not load your saved drafts. Please refresh and try again.</p>}
+        {savedCampaigns.length === 0 && !savedLoadError ? (
+          <div className="rounded-2xl border border-dashed border-[#CFE2EC] bg-[#F8FCFE] p-5 text-center text-sm text-[#667085]">
+            Your saved message drafts will appear here.
+          </div>
+        ) : (
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {savedCampaigns.map((cmp) => (
-            <div key={cmp.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div key={cmp.id} className="flex flex-col justify-between gap-3 rounded-2xl border border-[#E4EAF1] bg-gradient-to-br from-white to-[#F8FCFE] p-4 sm:flex-row sm:items-center">
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-[#10243A]">{cmp.name}</h3>
@@ -417,6 +445,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
             </div>
           ))}
         </div>
+        )}
       </div>
 
     </div>

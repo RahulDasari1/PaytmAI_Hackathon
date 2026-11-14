@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, ArrowRight, CheckCircle2, Package, Search, X } from 'lucide-react';
 import { InventoryItem, Language } from '../types';
-import { getT } from '../i18n';
 import { api } from '../services/api';
+import { PageHeader } from '../components/PageHeader';
 
 interface InventoryPageProps {
   language: Language;
@@ -147,7 +147,7 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ language, onRefres
   const [reorderQty, setReorderQty] = useState(30);
   const [reorderSuccess, setReorderSuccess] = useState(false);
 
-  const loadInventory = async () => {
+  const loadInventory = useCallback(async () => {
     setLoading(true);
     setLoadError(false);
     try {
@@ -160,11 +160,28 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ language, onRefres
     } finally {
       setLoading(false);
     }
-  };
+  }, [onRefreshCriticalCount]);
 
   useEffect(() => {
-    void loadInventory();
-  }, []);
+    let active = true;
+    api.getInventory('ALL', 'ALL')
+      .then((data) => {
+        if (!active) return;
+        setInventory(data);
+        onRefreshCriticalCount?.(data.filter((item) => item.priority === 'CRITICAL').length);
+      })
+      .catch((error: unknown) => {
+        console.error('Failed to load inventory:', error);
+        if (active) setLoadError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [onRefreshCriticalCount]);
 
   const categories = useMemo(
     () => Array.from(new Set(inventory.map((item) => item.category))).sort(),
@@ -220,10 +237,12 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ language, onRefres
 
   return (
     <div className="mx-auto max-w-4xl space-y-5 pb-3">
-      <header className="px-1 pt-1">
-        <h1 className="text-2xl font-extrabold tracking-tight text-[#10243A] sm:text-3xl">{copy.intro}</h1>
-        <p className="mt-1 text-sm leading-relaxed text-[#475467]">{copy.explain}</p>
-      </header>
+      <PageHeader
+        eyebrow={language === 'hi' ? 'दुकान का स्टॉक' : language === 'te' ? 'దుకాణం స్టాక్' : 'Shop stock'}
+        icon={Package}
+        title={copy.intro}
+        description={copy.explain}
+      />
 
       <section className="grid grid-cols-1 gap-2 sm:grid-cols-3" aria-label={copy.intro}>
         {filters.map((filter) => {
@@ -235,11 +254,13 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ language, onRefres
               type="button"
               onClick={() => setFilterUrgency(isActive ? 'ALL' : filter.id)}
               aria-pressed={isActive}
-              className={`flex min-h-16 items-center gap-3 rounded-2xl border bg-white px-4 py-3 text-left transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00BAF2] ${
-                isActive ? filter.activeClass : 'border-[#E4EAF1] text-[#344054] hover:bg-[#F8FAFC]'
+              className={`flex min-h-[76px] items-center gap-3 rounded-[22px] border bg-white px-4 py-3 text-left shadow-[0_8px_24px_-22px_rgba(16,36,58,0.65)] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00BAF2] ${
+                isActive ? `${filter.activeClass} ring-2 ring-white shadow-[0_8px_22px_-16px_rgba(0,41,112,0.45)]` : 'border-[#E4EAF1] text-[#344054] hover:-translate-y-0.5 hover:border-[#B9E6FE] hover:bg-[#F8FCFF]'
               }`}
             >
-              <Icon className={`h-5 w-5 shrink-0 ${filter.iconClass}`} aria-hidden="true" />
+              <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${filter.activeClass}`}>
+                <Icon className={`h-5 w-5 ${filter.iconClass}`} aria-hidden="true" />
+              </span>
               <span className="min-w-0 flex-1 text-sm font-semibold">{filter.label}</span>
               <span className="text-lg font-extrabold tabular-nums">{filter.count}</span>
             </button>
@@ -300,13 +321,23 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ language, onRefres
                   ? 'bg-[#FFF9EB] text-[#B54708]'
                   : 'bg-[#ECFDF3] text-[#027A48]';
               const statusLabel = isCritical ? copy.critical : isLow ? copy.low : copy.okay;
+              const stockLevel = Math.max(10, Math.min(100, (item.estimated_days_remaining / 14) * 100));
+              const stockBar = isCritical ? 'bg-[#F04438]' : isLow ? 'bg-[#F79009]' : 'bg-[#12B76A]';
 
               return (
-                <article key={item.sku} className="rounded-2xl border border-[#E4EAF1] bg-white p-4 shadow-fintech-xs sm:p-5">
+                <article key={item.sku} className="relative overflow-hidden rounded-[24px] border border-[#E2EAF1] bg-white p-4 shadow-[0_10px_28px_-24px_rgba(16,36,58,0.65)] transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_-24px_rgba(0,41,112,0.4)] sm:p-5">
+                  <div className={`absolute inset-y-0 left-0 w-1 ${stockBar}`} aria-hidden="true" />
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h2 className="text-base font-bold text-[#10243A]">{item.name}</h2>
-                      <p className="mt-0.5 text-xs text-[#667085]">{item.category}</p>
+                      <div className="flex items-center gap-2">
+                        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${statusClass}`}>
+                          <Package className="h-4 w-4" aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                          <h2 className="text-base font-bold text-[#10243A]">{item.name}</h2>
+                          <p className="mt-0.5 text-xs text-[#667085]">{item.category}</p>
+                        </div>
+                      </div>
                     </div>
                     <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${statusClass}`}>{statusLabel}</span>
                   </div>
@@ -318,6 +349,11 @@ export const InventoryPage: React.FC<InventoryPageProps> = ({ language, onRefres
                     <div>
                       <p className="text-xs text-[#667085]">{copy.runsOut}</p>
                       <p className="mt-0.5 text-lg font-extrabold tabular-nums text-[#10243A]">{item.estimated_days_remaining} <span className="text-xs font-medium text-[#667085]">{copy.days}</span></p>
+                    </div>
+                  </div>
+                  <div className="mt-3" role="img" aria-label={`${item.estimated_days_remaining} ${copy.days} of stock remaining`}>
+                    <div className="h-2 overflow-hidden rounded-full bg-[#EEF2F6]">
+                      <div className={`h-full rounded-full ${stockBar}`} style={{ width: `${stockLevel}%` }} />
                     </div>
                   </div>
                   <div className="mt-4 flex flex-col gap-3 border-t border-[#E4EAF1] pt-3 sm:flex-row sm:items-center sm:justify-between">

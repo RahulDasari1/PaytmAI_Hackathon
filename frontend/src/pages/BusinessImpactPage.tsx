@@ -1,227 +1,173 @@
 import React from 'react';
-import { 
-  Award, 
-  Target, 
-  Zap, 
-  Coins, 
-  Cpu, 
-  CheckCircle2, 
+import {
+  ArrowRight,
+  BarChart3,
+  MessageCircle,
+  Megaphone,
+  Package,
   ShieldCheck,
-  TrendingUp,
-  Store,
-  Layers
+  Sparkles,
+  Store
 } from 'lucide-react';
 import { Language } from '../types';
-import { getT } from '../i18n';
+import { PageHeader } from '../components/PageHeader';
 
 interface BusinessImpactPageProps {
   language: Language;
+  onNavigate: (tab: string, context?: { query?: string }) => void;
 }
 
-export const BusinessImpactPage: React.FC<BusinessImpactPageProps> = ({ language }) => {
-  const t = getT(language);
+export const BusinessImpactPage: React.FC<BusinessImpactPageProps> = ({ language, onNavigate }) => {
+  const copy = language === 'hi'
+    ? {
+        eyebrow: 'आपकी दुकान के लिए',
+        title: 'साथी आपके काम को आसान बनाता है',
+        description: 'रिपोर्ट समझने की ज़रूरत नहीं। अपनी दुकान के बारे में पूछें और अगला कदम चुनें।',
+        ask: 'साथी से पूछें',
+        stepsTitle: 'कैसे मदद मिलती है',
+        steps: [
+          { title: 'दुकान का हाल समझें', text: 'बिक्री और स्टॉक की ज़रूरी बातें आसान भाषा में देखें।' },
+          { title: 'सुझाव पाएँ', text: 'समझें कि किस काम पर पहले ध्यान देना ठीक रहेगा।' },
+          { title: 'अपना कदम चुनें', text: 'स्टॉक देखें या ग्राहक के लिए संदेश का ड्राफ्ट बनाएँ।' }
+        ],
+        trustTitle: 'डेमो में क्या होता है',
+        trustText: 'यह नमूना दुकान के डेटा से बना डेमो है, आपके Paytm खाते से जुड़ा नहीं है।',
+        trustItems: ['बिक्री और स्टॉक का डेटा नमूना है', 'ऑफ़र सिर्फ़ ड्राफ्ट होते हैं, भेजे नहीं जाते', 'स्टॉक अपडेट से सप्लायर को ऑर्डर नहीं जाता'],
+        quickTitle: 'आज क्या जानना चाहेंगे?',
+        askSales: 'इस हफ़्ते बिक्री कैसी रही?',
+        askStock: 'कौन-सा सामान जल्दी खत्म होगा?',
+        askCustomers: 'पुराने ग्राहकों से कैसे जुड़ें?'
+      }
+    : language === 'te'
+      ? {
+          eyebrow: 'మీ దుకాణం కోసం',
+          title: 'సాథీ మీ పనిని సులభం చేస్తుంది',
+          description: 'రిపోర్టులు అర్థం చేసుకోవాల్సిన అవసరం లేదు. మీ దుకాణం గురించి అడిగి తదుపరి అడుగు ఎంచుకోండి.',
+          ask: 'సాథీని అడగండి',
+          stepsTitle: 'సహాయం ఎలా అందుతుంది',
+          steps: [
+            { title: 'దుకాణం పరిస్థితి తెలుసుకోండి', text: 'అమ్మకాలు, స్టాక్ గురించి ముఖ్యమైన విషయాలు సులభంగా చూడండి.' },
+            { title: 'సూచన పొందండి', text: 'ముందుగా ఏ పనిపై దృష్టి పెట్టాలో తెలుసుకోండి.' },
+            { title: 'మీ తదుపరి అడుగు ఎంచుకోండి', text: 'స్టాక్ చూడండి లేదా కస్టమర్ సందేశం డ్రాఫ్ట్ చేయండి.' }
+          ],
+          trustTitle: 'డెమోలో ఏముంటుంది',
+          trustText: 'ఇది నమూనా దుకాణం డేటాతో చేసిన డెమో. మీ Paytm ఖాతాకు కనెక్ట్ కాలేదు.',
+          trustItems: ['అమ్మకాలు, స్టాక్ వివరాలు నమూనావి', 'ఆఫర్లు డ్రాఫ్ట్ మాత్రమే, పంపబడవు', 'స్టాక్ అప్‌డేట్‌తో సరఫరాదారునికి ఆర్డర్ వెళ్లదు'],
+          quickTitle: 'ఈ రోజు ఏమి తెలుసుకోవాలనుకుంటున్నారు?',
+          askSales: 'ఈ వారం అమ్మకాలు ఎలా ఉన్నాయి?',
+          askStock: 'ఏ వస్తువులు త్వరలో అయిపోతాయి?',
+          askCustomers: 'పాత కస్టమర్లతో ఎలా మళ్లీ మాట్లాడాలి?'
+        }
+      : {
+          eyebrow: 'Made for your shop',
+          title: 'A helpful partner for your shop',
+          description: 'Skip the complicated reports. Ask about your shop and get a clear next step you can choose to take.',
+          ask: 'Ask Saathi',
+          stepsTitle: 'A simpler way to run the day',
+          steps: [
+            { title: 'See what is happening', text: 'Get the important bits about sales, stock, and regular shoppers.' },
+            { title: 'Get a useful suggestion', text: 'Understand what may need your attention first and why.' },
+            { title: 'Choose what to do next', text: 'Check stock or prepare a customer message draft.' }
+          ],
+          trustTitle: 'Clear about this demo',
+          trustText: 'This prototype uses sample shop data and is not connected to your Paytm merchant account.',
+          trustItems: ['Sales and stock details are sample data', 'Offers are saved as drafts and are never sent', 'Stock updates change sample data only—no supplier order is placed'],
+          quickTitle: 'What would you like to ask today?',
+          askSales: 'How did my sales do this week?',
+          askStock: 'What might run out soon?',
+          askCustomers: 'How can I reconnect with regulars?'
+        };
+
+  const actions = [
+    { query: copy.askSales, icon: BarChart3, style: 'bg-[#EAF8FF] text-[#006B9B]' },
+    { query: copy.askStock, icon: Package, style: 'bg-[#FFF3DB] text-[#A15C00]' },
+    { query: copy.askCustomers, icon: Megaphone, style: 'bg-[#E7F8EF] text-[#027A48]' }
+  ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      
-      {/* Title & Vision Banner */}
-      <div className="bg-gradient-to-r from-[#002970] via-[#0A1E42] to-[#10243A] rounded-2xl p-6 sm:p-8 text-white shadow-fintech-md relative overflow-hidden">
-        <div className="max-w-3xl">
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#00BAF2] text-[#002970] uppercase tracking-wider">
-            Fintech Innovation Vision
+    <div className="mx-auto max-w-7xl space-y-5 pb-3">
+      <PageHeader
+        eyebrow={copy.eyebrow}
+        icon={Store}
+        title={copy.title}
+        description={copy.description}
+        action={
+          <button
+            type="button"
+            onClick={() => onNavigate('copilot')}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#002970] px-4 text-sm font-bold text-white shadow-[0_8px_18px_-12px_rgba(0,41,112,0.65)] transition-all hover:-translate-y-0.5 hover:bg-[#0F3B8C]"
+          >
+            <MessageCircle className="h-4 w-4 text-[#80E5FF]" aria-hidden="true" />
+            {copy.ask}
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </button>
+        }
+      />
+
+      <section className="rounded-[26px] border border-[#E4EAF1] bg-white p-5 shadow-[0_10px_28px_-24px_rgba(16,36,58,0.7)] sm:p-6">
+        <div className="mb-4 flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EAF8FF] text-[#006B9B]">
+            <Sparkles className="h-5 w-5" aria-hidden="true" />
           </span>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight mt-2.5">
-            {t.appTitle} — {t.tagline}
-          </h1>
-          <p className="text-xs sm:text-sm text-sky-100 mt-2 leading-relaxed">
-            Transforming raw digital payment ledger logs into plain-language business insights, explainable recommendations, and 1-click marketing actions for Indian retail merchants.
-          </p>
+          <h2 className="text-base font-extrabold text-[#10243A]">{copy.stepsTitle}</h2>
         </div>
-      </div>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {copy.steps.map((step, index) => (
+            <article key={step.title} className="relative overflow-hidden rounded-[22px] border border-[#E2EDF3] bg-gradient-to-br from-white to-[#F5FBFE] p-5">
+              <span className="absolute -right-4 -top-5 text-6xl font-black text-[#EAF5FA]" aria-hidden="true">0{index + 1}</span>
+              <div className="relative">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-extrabold text-[#007EAE] shadow-sm ring-1 ring-[#D8ECF8]">{index + 1}</span>
+                <h3 className="mt-4 text-sm font-extrabold text-[#10243A]">{step.title}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-[#475467]">{step.text}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
-      {/* The Merchant Problem & The Core Differentiator */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Problem */}
-        <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs flex flex-col justify-between">
-          <div>
-            <div className="w-10 h-10 rounded-xl bg-[#FEF3F2] flex items-center justify-center text-[#F04438] mb-3 border border-[#FECDCA]">
-              <Target className="w-5 h-5" />
-            </div>
-            <h2 className="text-sm sm:text-base font-extrabold text-[#10243A] mb-2">
-              The Problem Faced by 60M+ Indian Merchants
-            </h2>
-            <p className="text-xs text-[#475467] leading-relaxed">
-              Small kirana owners, cafes, and retailers accept hundreds of UPI and card transactions daily via Paytm Soundbox and QR. However:
-            </p>
-            <ul className="mt-3 space-y-2 text-xs text-[#475467]">
-              <li className="flex items-start gap-2">
-                <span className="text-[#F04438] font-bold">•</span>
-                <span><strong>Data Blindness:</strong> Merchants only see raw amounts, not why sales changed or who stopped visiting.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-[#F04438] font-bold">•</span>
-                <span><strong>Silent Customer Churn:</strong> Regular neighborhood customers lapse without the shopkeeper noticing in time.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-[#F04438] font-bold">•</span>
-                <span><strong>Language Barrier:</strong> Existing SaaS analytics platforms are in complex English with confusing BI charts.</span>
-              </li>
+      <section className="relative overflow-hidden rounded-[26px] bg-gradient-to-br from-[#002970] via-[#06458F] to-[#008FC2] p-5 text-white shadow-[0_18px_38px_-24px_rgba(0,41,112,0.7)] sm:p-6">
+        <div className="pointer-events-none absolute -right-8 -top-12 h-44 w-44 rounded-full border-[20px] border-white/10" aria-hidden="true" />
+        <div className="relative flex items-start gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+            <ShieldCheck className="h-5 w-5 text-[#B9F0FF]" aria-hidden="true" />
+          </span>
+          <div className="max-w-3xl">
+            <h2 className="text-lg font-extrabold">{copy.trustTitle}</h2>
+            <p className="mt-1 text-sm leading-relaxed text-sky-100">{copy.trustText}</p>
+            <ul className="mt-4 grid grid-cols-1 gap-2 text-sm text-white sm:grid-cols-3">
+              {copy.trustItems.map((item) => (
+                <li key={item} className="flex items-start gap-2 rounded-xl bg-white/10 p-3">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#9AF0CC]" aria-hidden="true" />
+                  <span>{item}</span>
+                </li>
+              ))}
             </ul>
           </div>
-
-          <div className="mt-4 p-3 rounded-xl bg-[#F8FAFC] text-[11px] text-[#667085] border border-[#E4EAF1]">
-            Dukaan Saathi AI eliminates the need for expensive consultants or complex Excel sheets.
-          </div>
         </div>
+      </section>
 
-        {/* Differentiator */}
-        <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs flex flex-col justify-between">
-          <div>
-            <div className="w-10 h-10 rounded-xl bg-[#EBF7FF] flex items-center justify-center text-[#002970] mb-3 border border-[#B9E6FE]">
-              <Zap className="w-5 h-5 text-[#00BAF2]" />
-            </div>
-            <h2 className="text-sm sm:text-base font-extrabold text-[#10243A] mb-2">
-              The Dukaan Saathi Differentiator
-            </h2>
-            <div className="p-3 rounded-xl bg-[#F0F9FF] border border-[#B9E6FE] text-xs font-semibold text-[#002970] mb-3 leading-snug">
-              "Don't just show business data. Explain what is happening, recommend what to do next, and help the merchant take action."
-            </div>
-            <ul className="space-y-2 text-xs text-[#475467]">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#12B76A] shrink-0 mt-0.5" />
-                <span><strong>Explainable AI:</strong> Every insight connects an observed transaction fact to an estimated benefit.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#12B76A] shrink-0 mt-0.5" />
-                <span><strong>Closed-Loop Action:</strong> Generate localized WhatsApp & SMS campaign drafts and simulate supplier reorders in 1 click.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#12B76A] shrink-0 mt-0.5" />
-                <span><strong>Zero-Key Reliability:</strong> Full deterministic analytics engine works offline or locally without requiring paid API keys.</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="mt-4 p-3 rounded-xl bg-[#ECFDF3] text-[11px] text-[#027A48] border border-[#A6F4C5] font-medium">
-            Seamless integration path with existing Paytm Soundbox audio announcements and Paytm for Business app.
-          </div>
+      <section className="rounded-[26px] border border-[#E4EAF1] bg-white p-5 shadow-[0_10px_28px_-24px_rgba(16,36,58,0.7)] sm:p-6">
+        <h2 className="text-base font-extrabold text-[#10243A]">{copy.quickTitle}</h2>
+        <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+          {actions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.query}
+                type="button"
+                onClick={() => onNavigate('copilot', { query: action.query })}
+                className="group flex min-h-16 items-center gap-3 rounded-2xl border border-[#E4EAF1] bg-white p-3 text-left transition-all hover:border-[#B9E6FE] hover:bg-[#F8FCFE]"
+              >
+                <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${action.style}`}>
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1 text-sm font-semibold text-[#344054]">{action.query}</span>
+                <ArrowRight className="h-4 w-4 shrink-0 text-[#98A2B3] transition-transform group-hover:translate-x-1" aria-hidden="true" />
+              </button>
+            );
+          })}
         </div>
-
-      </div>
-
-      {/* Business Model & Monetization Tiers */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs">
-        <div className="flex items-center gap-2 mb-1">
-          <Coins className="w-5 h-5 text-[#F79009]" />
-          <h2 className="text-sm sm:text-base font-extrabold text-[#10243A]">
-            Monetization & Freemium SaaS Architecture
-          </h2>
-        </div>
-        <p className="text-xs text-[#667085] mb-4">
-          A sustainable freemium model tailored for the economics of Indian MSMEs
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-5 rounded-2xl border border-[#E4EAF1] bg-[#F8FAFC] flex flex-col justify-between">
-            <div>
-              <span className="text-[10px] font-bold text-[#667085] uppercase tracking-wider">Free / Starter</span>
-              <div className="text-xl font-extrabold text-[#10243A] mt-1 tabular-nums">₹0 <span className="text-xs font-normal text-[#667085]">/ forever</span></div>
-              <p className="text-xs text-[#475467] mt-2">
-                Bundled with Paytm Soundbox hardware subscription.
-              </p>
-              <ul className="mt-3 space-y-1.5 text-xs text-[#475467]">
-                <li>• Daily evening sales summary</li>
-                <li>• Basic peak hours chart</li>
-                <li>• 2 AI Copilot queries per day</li>
-              </ul>
-            </div>
-            <div className="mt-4 pt-3 border-t border-[#E4EAF1] text-[11px] font-semibold text-[#667085]">
-              Merchant Acquisition Funnel
-            </div>
-          </div>
-
-          <div className="p-5 rounded-2xl border-2 border-[#002970] bg-[#F0F9FF] flex flex-col justify-between relative shadow-sm">
-            <span className="absolute -top-2.5 right-4 bg-[#002970] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-              Recommended
-            </span>
-            <div>
-              <span className="text-[10px] font-bold text-[#002970] uppercase tracking-wider">Dukaan Saathi Pro</span>
-              <div className="text-xl font-extrabold text-[#002970] mt-1 tabular-nums">₹299 <span className="text-xs font-normal text-[#667085]">/ month</span></div>
-              <p className="text-xs text-[#344054] mt-2">
-                Comprehensive copilot for active kirana stores and cafes.
-              </p>
-              <ul className="mt-3 space-y-1.5 text-xs text-[#344054]">
-                <li>• <strong>Unlimited AI Copilot</strong> (Voice & Text)</li>
-                <li>• <strong>RFM Customer Retention Engine</strong></li>
-                <li>• <strong>Multilingual WhatsApp Campaign Studio</strong></li>
-                <li>• <strong>Stockout velocity predictions</strong></li>
-              </ul>
-            </div>
-            <div className="mt-4 pt-3 border-t border-[#B9E6FE] text-[11px] font-bold text-[#002970]">
-              High LTV Merchant Retainer
-            </div>
-          </div>
-
-          <div className="p-5 rounded-2xl border border-[#E4EAF1] bg-[#F8FAFC] flex flex-col justify-between">
-            <div>
-              <span className="text-[10px] font-bold text-[#667085] uppercase tracking-wider">Enterprise / Distributor</span>
-              <div className="text-xl font-extrabold text-[#10243A] mt-1 tabular-nums">₹999 <span className="text-xs font-normal text-[#667085]">/ month</span></div>
-              <p className="text-xs text-[#475467] mt-2">
-                Multi-outlet stores and regional FMCG distributor networks.
-              </p>
-              <ul className="mt-3 space-y-1.5 text-xs text-[#475467]">
-                <li>• Multi-branch consolidated ledger</li>
-                <li>• Automated supplier PO transmission</li>
-                <li>• Dedicated Sarvam / Gemini LLM tuning</li>
-              </ul>
-            </div>
-            <div className="mt-4 pt-3 border-t border-[#E4EAF1] text-[11px] font-semibold text-[#667085]">
-              FMCG B2B Procurement Synergy
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Measured Prototype Performance & Benchmarks */}
-      <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs">
-        <div className="flex items-center gap-2 mb-1">
-          <Cpu className="w-5 h-5 text-[#12B76A]" />
-          <h2 className="text-sm sm:text-base font-extrabold text-[#10243A]">
-            Measured Prototype Performance & Benchmark Metrics
-          </h2>
-        </div>
-        <p className="text-xs text-[#667085] mb-4">
-          Real metrics measured locally during system execution
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
-            <div className="text-[10px] font-bold text-[#667085] uppercase tracking-wider">Local Query Latency</div>
-            <div className="text-2xl font-extrabold text-[#002970] mt-1 tabular-nums">~42 ms</div>
-            <div className="text-[11px] text-[#027A48] font-semibold mt-0.5">Instant sub-second response</div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
-            <div className="text-[10px] font-bold text-[#667085] uppercase tracking-wider">Test Fixture Accuracy</div>
-            <div className="text-2xl font-extrabold text-[#027A48] mt-1 tabular-nums">100%</div>
-            <div className="text-[11px] text-[#667085] mt-0.5">Zero calculation hallucination</div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
-            <div className="text-[10px] font-bold text-[#667085] uppercase tracking-wider">Synthetic Ledger Volume</div>
-            <div className="text-2xl font-extrabold text-[#00BAF2] mt-1 tabular-nums">4,650+</div>
-            <div className="text-[11px] text-[#667085] mt-0.5">90-day transactions verified</div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
-            <div className="text-[10px] font-bold text-[#667085] uppercase tracking-wider">Vernacular Coverage</div>
-            <div className="text-2xl font-extrabold text-[#6941C6] mt-1">3 Languages</div>
-            <div className="text-[11px] text-[#667085] mt-0.5">English, Hindi & Telugu native</div>
-          </div>
-        </div>
-      </div>
-
+      </section>
     </div>
   );
 };

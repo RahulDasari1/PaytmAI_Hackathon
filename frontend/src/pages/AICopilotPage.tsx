@@ -213,12 +213,12 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
     <div className="mx-auto flex h-[calc(100dvh-11rem)] min-h-[460px] max-w-4xl flex-col gap-5 pb-3">
       
       {/* Left/Main Column: Conversational Workspace */}
-      <div className="flex-1 flex flex-col bg-white rounded-2xl border border-[#E4EAF1] shadow-fintech-xs overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden rounded-[26px] border border-[#D8ECF8] bg-white shadow-[0_14px_36px_-26px_rgba(0,41,112,0.55)]">
         
         {/* Workspace Header */}
-        <div className="p-3.5 sm:p-4 border-b border-[#E4EAF1] bg-[#FAFCFF] flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-[#E4EAF1] bg-gradient-to-r from-[#EFFAFF] via-white to-white p-3.5 sm:p-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#002970] to-[#00BAF2] flex items-center justify-center text-white shadow-xs">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#002970] to-[#00A8E0] text-white shadow-sm">
               <Bot className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -226,9 +226,9 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
                 <h1 className="text-base sm:text-lg font-extrabold text-[#10243A]">
                   {t.navCopilot}
                 </h1>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5] flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#12B76A] animate-pulse"></span>
-                      {language === 'hi' ? 'मदद के लिए तैयार' : language === 'te' ? 'సహాయానికి సిద్ధం' : 'Ready to help'}
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D5EAF4] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#006B9B]">
+                      <Sparkles className="h-3 w-3" aria-hidden="true" />
+                      {language === 'hi' ? 'आपका दुकान साथी' : language === 'te' ? 'మీ దుకాణ సాథీ' : 'Your shop helper'}
                 </span>
               </div>
                   <p className="text-xs text-[#667085]">
@@ -248,7 +248,7 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
         </div>
 
         {/* Chat Message Stream */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
+        <div className="flex-1 space-y-5 overflow-y-auto bg-[linear-gradient(180deg,#F7FCFE_0%,#FFFFFF_75%)] p-4 sm:p-5">
           {messages.map((msg) => (
             <div
               key={msg.id}
@@ -258,10 +258,10 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
             >
               {/* Avatar */}
               <div
-                className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold ${
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl text-xs font-bold shadow-sm ${
                   msg.sender === 'user'
-                    ? 'bg-[#10243A] text-white'
-                    : 'bg-[#002970] text-[#00BAF2]'
+                    ? 'bg-[#EAF8FF] text-[#006B9B]'
+                    : 'bg-gradient-to-br from-[#002970] to-[#008FC2] text-white'
                 }`}
               >
                 {msg.sender === 'user' ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
@@ -270,10 +270,10 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
               {/* Message Block */}
               <div className="space-y-2 max-w-[90%] sm:max-w-xl">
                 <div
-                  className={`p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                  className={`rounded-[22px] p-4 text-xs leading-relaxed shadow-[0_8px_24px_-22px_rgba(16,36,58,0.7)] sm:text-sm ${
                     msg.sender === 'user'
-                      ? 'bg-[#002970] text-white rounded-tr-none font-medium'
-                      : 'bg-[#F8FAFC] border border-[#E4EAF1] text-[#1D2939] rounded-tl-none shadow-xs'
+                      ? 'rounded-tr-md bg-gradient-to-br from-[#002970] to-[#06458F] font-medium text-white'
+                      : 'rounded-tl-md border border-[#E5EEF3] bg-white text-[#1D2939]'
                   }`}
                 >
                   <div className="whitespace-pre-line text-sm leading-7">
@@ -283,7 +283,7 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
 
                 {/* Direct Action Card */}
                 {msg.recommended_action && (
-                  <div className="p-3 bg-[#EBF7FF] rounded-xl border border-[#B9E6FE] flex items-center justify-between gap-3 animate-in fade-in">
+                  <div className="flex items-center justify-between gap-3 rounded-2xl border border-[#B9E6FE] bg-gradient-to-r from-[#EAF8FF] to-white p-3 animate-in fade-in">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-[#00BAF2] shrink-0" />
                       <span className="text-xs font-bold text-[#002970]">
@@ -340,7 +340,7 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
         </div>
 
         {/* Suggested Queries Chips */}
-        <div className="px-4 py-3 bg-[#F8FAFC] border-t border-[#E4EAF1] overflow-x-auto flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto border-t border-[#E4EAF1] bg-[#F8FCFE] px-4 py-3">
           <span className="text-xs font-bold text-[#667085] shrink-0 flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-[#00BAF2]" />
             <span>{language === 'hi' ? 'पूछें:' : language === 'te' ? 'అడగండి:' : 'Try asking:'}</span>
@@ -349,7 +349,7 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
             <button
               key={idx}
               onClick={() => handleSend(sug)}
-              className="px-3 py-2 rounded-full text-xs font-semibold bg-white hover:bg-[#EBF7FF] text-[#344054] hover:text-[#002970] border border-[#E4EAF1] hover:border-[#B9E6FE] transition-all whitespace-nowrap shadow-fintech-xs"
+              className="whitespace-nowrap rounded-full border border-[#DCE8EF] bg-white px-3 py-2 text-xs font-semibold text-[#344054] shadow-sm transition-all hover:border-[#B9E6FE] hover:bg-[#EAF8FF] hover:text-[#002970]"
             >
               {sug}
             </button>
@@ -357,7 +357,7 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
         </div>
 
         {/* Persistent Input Composer */}
-        <div className="p-4 bg-white border-t border-[#E4EAF1]">
+        <div className="border-t border-[#E4EAF1] bg-white p-4">
           {voiceStatus && (
             <p className="mb-2 text-sm text-[#475467]" role="status" aria-live="polite">{voiceStatus}</p>
           )}
@@ -390,12 +390,12 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
                   ? "దుకాణ్ సాథీని అడగండి (ఉదా. విక్రయాలు ఎందుకు తగ్గాయి, ఏ స్టాక్ ఆర్డర్ చేయాలి)..."
                   : "Ask Dukaan Saathi (e.g. Why did sales decrease? What should I stock more of?)..."
               }
-              className="min-h-12 flex-1 px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1] focus:border-[#00BAF2] focus:bg-white text-sm focus:outline-none transition-all placeholder:text-[#98A2B3]"
+              className="min-h-12 flex-1 rounded-full border border-[#DCE8EF] bg-[#F8FCFE] px-4 py-2.5 text-sm transition-all placeholder:text-[#98A2B3] focus:border-[#00BAF2] focus:bg-white focus:outline-none"
             />
             <button
               type="submit"
               disabled={!inputText.trim() || loading}
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#002970] to-[#00BAF2] text-white hover:opacity-90 disabled:opacity-40 transition-all shadow-fintech-xs"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#002970] to-[#008FC2] text-white shadow-sm transition-all hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label={t.sendMessage}
             >
               <Send className="w-4 h-4" />
