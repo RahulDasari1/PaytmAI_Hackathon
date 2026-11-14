@@ -379,13 +379,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-bold text-[#10243A]">{cmp.name}</h3>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                    cmp.status === 'ACTIVE' 
-                      ? 'bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5]'
-                      : cmp.status === 'DRAFT'
-                      ? 'bg-[#FFF9EB] text-[#B54708] border border-[#FEF0C7]'
-                      : 'bg-slate-100 text-slate-700'
-                  }`}>
+                  <span className="rounded bg-[#FFF9EB] px-2 py-0.5 text-[10px] font-bold text-[#B54708] border border-[#FEF0C7]">
                     Saved draft
                   </span>
                   <span className="text-[10px] uppercase font-semibold text-[#667085]">
@@ -396,7 +390,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
                   {cmp.message_copy}
                 </p>
                 <div className="text-[10px] text-[#667085] mt-1 flex items-center gap-2">
-                  <span>Audience: {cmp.audience_segment} ({cmp.target_customer_count} reach)</span>
+                  <span>Sample audience: {cmp.audience_segment} ({cmp.target_customer_count} people)</span>
                   <span>•</span>
                   <span>Timing: {cmp.suggested_timing}</span>
                 </div>

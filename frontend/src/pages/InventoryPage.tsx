@@ -134,7 +134,6 @@ const formatINR = (amount: number) => new Intl.NumberFormat('en-IN', {
 }).format(amount);
 
 export const InventoryPage: React.FC<InventoryPageProps> = ({ language, onRefreshCriticalCount }) => {
-  const t = getT(language);
   const copy = pageCopy[language];
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [filterUrgency, setFilterUrgency] = useState<string>('ALL');

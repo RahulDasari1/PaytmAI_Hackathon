@@ -1,6 +1,6 @@
 # Dukaan Saathi AI — Your AI Business Growth Partner
 > **"Your business. Understood. Your next move. Simplified."**
-> A hackathon-ready AI business copilot and explainable growth partner tailored for Indian retail merchants (kirana stores, retail shops, and cafes) in the Paytm fintech ecosystem.
+> A simple demo shop helper for Indian retail merchants, built around clear guidance, local languages, and practical next steps.
 
 ---
 
@@ -17,13 +17,12 @@ Small Indian merchants accept hundreds of digital transactions daily through Pay
 ### Key Capabilities
 - **Merchant-first home:** A simple weekly sales summary and a few clear next steps replace charts on the first screen; detailed sales and customer reports remain available under More.
 - **Ask by voice or text:** Merchants can speak a question in English, Hindi, or Telugu where browser speech recognition is supported, or type instead.
-- **Explainable AI Business Copilot:** Connects observed facts (e.g. evening footfall drop) to concrete actions (e.g. evening combo promotion) with estimated benefits.
+- **Ask Saathi:** Answers questions using this demo's sample shop data and suggests practical next steps. It is not connected to a live Paytm merchant account.
 - **Multilingual Experience:** Native UI and conversational responses in **English, Hindi (हिंदी), and Telugu (తెలుగు)**.
-- **Paytm Soundbox Simulator:** Audio announcement testbed for instant receipt verification and proactive stockout voice alerts.
-- **RFM Customer Retention Engine:** Identifies at-risk customers who haven't visited in 14+ days and drafts 1-click win-back promotions.
-- **Velocity-Driven Inventory Assistant:** Computes real daily sales velocity to estimate days of stock remaining and simulates 1-click supplier purchase orders.
-- **Marketing Campaign Studio:** Mobile handset mockup generating WhatsApp and SMS promotional copy with persistent SQLite storage.
-- **Zero-Key Reliability:** Works 100% locally on a deterministic analytics engine with zero cloud API keys required, while providing seamless support for Gemini / OpenAI when keys are present.
+- **Voice support:** Browser speech recognition can turn spoken questions into text in English, Hindi, or Telugu where supported.
+- **Stock helper:** Highlights sample items that may run low. Updating stock changes demo data only; it does not place an order.
+- **Offer drafts:** Creates and saves sample message drafts. Messages are not sent to customers.
+- **Demo data:** Sales, customers, and stock shown in the app are synthetic and should not be treated as business records or forecasts.
 
 ---
 
@@ -52,18 +51,18 @@ PaytmAI_Hack/
     │   ├── i18n.ts               # Complete English, Hindi, and Telugu localization dictionary
     │   ├── services/api.ts       # Typed API client connecting to FastAPI
     │   ├── components/
-    │   │   ├── Navbar.tsx        # Top navigation with store profile, Soundbox badge & language
+    │   │   ├── Navbar.tsx        # Branded header, demo notice, and language picker
     │   │   ├── Sidebar.tsx       # Desktop & mobile navigation with alert counters
     │   │   ├── JudgeDemoBanner.tsx # Interactive 5-step guided hackathon jury walkthrough
     │   │   ├── KPICard.tsx       # Reusable fintech metric cards with growth pills
     │   │   └── VoiceSpeakerModal.tsx # Simulated Paytm Soundbox audio with Web Speech API
     │   ├── pages/
-    │   │   ├── OverviewDashboard.tsx  # KPI cards, Area curves, Donut charts, live ledger
+    │   │   ├── MerchantHomePage.tsx   # Shop update, simple recommendations, and next steps
     │   │   ├── AICopilotPage.tsx      # Conversational assistant with tool output cards
     │   │   ├── SalesAnalyticsPage.tsx # Period comparison engine & peak footfall heatmaps
     │   │   ├── CustomerInsightsPage.tsx # RFM cohorts & lapsed regulars retention table
     │   │   ├── CampaignStudioPage.tsx # WhatsApp mobile frame preview & persistent drafts
-    │   │   ├── InventoryPage.tsx      # Velocity stockout alerts & supplier PO modal
+    │   │   ├── InventoryPage.tsx      # Clear low-stock list and demo-only stock update
     │   │   ├── BusinessImpactPage.tsx # Problem statement, SaaS freemium model, benchmarks
     │   │   └── SettingsPage.tsx       # Store info, AI status, and demo reset controls
     │   ├── App.tsx
