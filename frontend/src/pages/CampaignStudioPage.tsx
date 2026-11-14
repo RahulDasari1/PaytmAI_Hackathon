@@ -89,7 +89,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
       await api.saveCampaign({
         ...draft,
         message_copy: editableCopy,
-        status: 'ACTIVE'
+        status: 'DRAFT'
       });
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2500);
@@ -118,14 +118,14 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
             {t.createCampaignTitle}
           </h1>
           <p className="text-xs text-[#667085] mt-0.5">
-            Configure, preview, and save targeted multilingual WhatsApp & SMS customer promotions
+            Write a friendly message for customers. This demo will not send it.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5] flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-[#12B76A]" />
-            <span>Sandbox Mode (Draft Preview Only)</span>
+            <span>Demo only · Nothing will be sent</span>
           </span>
         </div>
       </div>
@@ -140,17 +140,17 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-bold text-[#667085] uppercase tracking-wider">
-                1. Campaign Objective
+                1. What would you like to do?
               </label>
-              <span className="text-[11px] text-[#002970] font-semibold">Step 1 of 4</span>
+              <span className="text-[11px] text-[#002970] font-semibold">Step 1 of 5</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {[
-                { id: 'EVENING_FOOTFALL_BOOST', title: 'Evening Footfall Boost', desc: 'Combats observed 24% dip in evening snacks' },
-                { id: 'WIN_BACK_INACTIVE', title: 'Win-Back Lapsed Regulars', desc: 'Re-engage 35 inactive customers' },
-                { id: 'REPEAT_PURCHASES', title: 'Weekend Basket Booster', desc: 'Incentivize bulk grocery orders' },
-                { id: 'PRODUCT_PROMOTION', title: 'Fresh Dairy Promotion', desc: 'Morning push for perishable items' }
+                { id: 'EVENING_FOOTFALL_BOOST', title: 'Invite evening shoppers', desc: 'Share a simple tea-time offer' },
+                { id: 'WIN_BACK_INACTIVE', title: 'Welcome regulars back', desc: 'Send a friendly note to past customers' },
+                { id: 'REPEAT_PURCHASES', title: 'Encourage weekend shopping', desc: 'Suggest useful items for the weekend' },
+                { id: 'PRODUCT_PROMOTION', title: 'Share a fresh dairy offer', desc: 'Let nearby customers know what is fresh' }
               ].map((obj) => (
                 <button
                   key={obj.id}
@@ -173,23 +173,23 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#667085] uppercase tracking-wider mb-1.5">
-                2. Target Customer Segment
+                2. Who should see this?
               </label>
               <select
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-[#E4EAF1] text-xs font-semibold text-[#10243A] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:border-[#00BAF2]"
               >
-                <option value="Evening Footfall Shoppers (85 customers)">Evening Shoppers (85 customers)</option>
-                <option value="Inactive Regulars (Last 14+ Days) [35 customers]">Inactive Regulars (35 customers)</option>
-                <option value="All Neighborhood Shoppers (220 customers)">All Tracked Shoppers (220 customers)</option>
-                <option value="Morning Dairy Regulars (40 customers)">Morning Dairy Regulars (40 customers)</option>
+                <option value="Evening Footfall Shoppers (85 customers)">Evening shoppers · sample group</option>
+                <option value="Inactive Regulars (Last 14+ Days) [35 customers]">Regulars who have not visited · sample group</option>
+                <option value="All Neighborhood Shoppers (220 customers)">All nearby shoppers · sample group</option>
+                <option value="Morning Dairy Regulars (40 customers)">Morning dairy shoppers · sample group</option>
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-[#667085] uppercase tracking-wider mb-1.5">
-                3. Delivery Channel
+                3. Message channel
               </label>
               <div className="flex rounded-xl bg-[#F2F4F7] p-1 border border-[#E4EAF1]">
                 <button
@@ -217,7 +217,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
           {/* Step 3: Language Selector */}
           <div>
             <label className="block text-xs font-bold text-[#667085] uppercase tracking-wider mb-1.5">
-              4. Campaign Language & Tone
+              4. Message language
             </label>
             <div className="flex gap-2">
               {[
@@ -245,7 +245,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-bold text-[#667085] uppercase tracking-wider">
-                5. Generated Copy (Editable)
+                5. Review your message
               </label>
               <button
                 type="button"
@@ -253,7 +253,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
                 className="text-xs text-[#002970] hover:underline flex items-center gap-1 font-semibold"
               >
                 <RotateCw className="w-3 h-3" />
-                <span>Regenerate Copy</span>
+                <span>Write another version</span>
               </button>
             </div>
             <textarea
@@ -264,7 +264,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
             />
             <div className="flex justify-between items-center text-[11px] text-[#667085] mt-1">
               <span>{editableCopy.length} characters</span>
-              <span>Personalization tags: {'{customer_name}'} supported</span>
+              <span>This message is a sample</span>
             </div>
           </div>
 
@@ -285,7 +285,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
               className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#002970] to-[#00BAF2] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-fintech-sm hover:opacity-95 transition-all"
             >
               <Save className="w-4 h-4" />
-              <span>{saveSuccess ? "Draft Saved to Database!" : t.saveDraft}</span>
+              <span>{saveSuccess ? "Draft saved · not sent" : "Save demo draft"}</span>
             </button>
           </div>
 
@@ -296,7 +296,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
           
           <div className="text-xs font-bold text-[#667085] uppercase tracking-wider mb-4 flex items-center gap-1.5">
             <Smartphone className="w-4 h-4 text-[#98A2B3]" />
-            <span>Customer Handset Preview ({channel})</span>
+            <span>Message preview ({channel})</span>
           </div>
 
           {/* Smartphone Frame */}
@@ -318,10 +318,9 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
                 <div>
                   <div className="text-xs font-bold leading-tight flex items-center gap-1">
                     <span>Sharma General Store</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                   </div>
                   <div className="text-[9px] text-emerald-100">
-                    Verified Merchant • Soundbox Linked
+                    Sample message · not sent
                   </div>
                 </div>
               </div>
@@ -337,7 +336,6 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
                   </p>
                   <div className="text-[9px] text-[#98A2B3] text-right mt-1.5 flex items-center justify-end gap-1">
                     <span>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    <span className="text-sky-500">✓✓</span>
                   </div>
                 </div>
 
@@ -348,7 +346,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
 
               {/* Bottom preview banner */}
               <div className="bg-white p-1.5 rounded-xl mx-2 text-center text-[#667085] text-[10px] border border-slate-200">
-                <span>Message preview only (Simulated)</span>
+                <span>Preview only · nothing is sent</span>
               </div>
 
             </div>
@@ -364,10 +362,10 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-sm font-bold text-[#10243A]">
-              Saved Marketing Campaigns (Persistent SQLite Demo Storage)
+              Saved demo drafts
             </h2>
             <p className="text-xs text-[#667085]">
-              Campaign drafts and active promotions tracked in local database
+              These drafts are saved in this demo and are not sent to customers.
             </p>
           </div>
           <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#EBF7FF] text-[#002970] border border-[#B9E6FE] tabular-nums">
@@ -388,7 +386,7 @@ export const CampaignStudioPage: React.FC<CampaignStudioPageProps> = ({ language
                       ? 'bg-[#FFF9EB] text-[#B54708] border border-[#FEF0C7]'
                       : 'bg-slate-100 text-slate-700'
                   }`}>
-                    {cmp.status}
+                    Saved draft
                   </span>
                   <span className="text-[10px] uppercase font-semibold text-[#667085]">
                     [{cmp.language.toUpperCase()}]

@@ -15,6 +15,8 @@ Small Indian merchants accept hundreds of digital transactions daily through Pay
 > **Don't just show business data. Explain what is happening, recommend what to do next, and help the merchant take action.**
 
 ### Key Capabilities
+- **Merchant-first home:** A simple weekly sales summary and a few clear next steps replace charts on the first screen; detailed sales and customer reports remain available under More.
+- **Ask by voice or text:** Merchants can speak a question in English, Hindi, or Telugu where browser speech recognition is supported, or type instead.
 - **Explainable AI Business Copilot:** Connects observed facts (e.g. evening footfall drop) to concrete actions (e.g. evening combo promotion) with estimated benefits.
 - **Multilingual Experience:** Native UI and conversational responses in **English, Hindi (हिंदी), and Telugu (తెలుగు)**.
 - **Paytm Soundbox Simulator:** Audio announcement testbed for instant receipt verification and proactive stockout voice alerts.

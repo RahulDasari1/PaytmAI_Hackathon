@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { 
   Store, 
   Cpu, 
-  RotateCcw, 
-  Key,
-  ShieldCheck,
-  CheckCircle2
+  RotateCcw
 } from 'lucide-react';
 import { Language, SystemStatus } from '../types';
 import { getT } from '../i18n';
@@ -24,16 +21,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
   onResetDemo
 }) => {
   const t = getT(language);
-  const [geminiKey, setGeminiKey] = useState<string>(
-    localStorage.getItem('DEMO_GEMINI_API_KEY') || ''
-  );
-  const [savedKeyToast, setSavedKeyToast] = useState<boolean>(false);
-
-  const handleSaveKey = () => {
-    localStorage.setItem('DEMO_GEMINI_API_KEY', geminiKey);
-    setSavedKeyToast(true);
-    setTimeout(() => setSavedKeyToast(false), 2000);
-  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -45,7 +32,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
             {t.navSettings}
           </h1>
           <p className="text-xs text-[#667085] mt-0.5">
-            Store metadata, AI provider configuration, and demo sandbox controls
+            Shop details and demo controls
           </p>
         </div>
       </div>
@@ -61,7 +48,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
               Merchant Store Profile
             </h2>
             <p className="text-xs text-[#667085]">
-              Registered Paytm Merchant Ecosystem details
+              Sample shop details for this demo
             </p>
           </div>
         </div>
@@ -83,12 +70,12 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
           </div>
 
           <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
-            <span className="text-[#667085] font-bold uppercase tracking-wider text-[10px]">Linked Paytm UPI ID</span>
+            <span className="text-[#667085] font-bold uppercase tracking-wider text-[10px]">Sample UPI ID</span>
             <div className="font-bold text-[#002970] text-sm mt-1">{systemStatus?.store_profile.upi_id || "sharmastore@paytm"}</div>
           </div>
 
           <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
-            <span className="text-[#667085] font-bold uppercase tracking-wider text-[10px]">Paytm Soundbox Serial</span>
+            <span className="text-[#667085] font-bold uppercase tracking-wider text-[10px]">Sample Soundbox number</span>
             <div className="font-bold text-[#027A48] text-sm mt-1 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[#12B76A]"></span>
               <span>{systemStatus?.store_profile.soundbox_id || "PSB-99214-NOIDA"}</span>
@@ -102,7 +89,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
         </div>
       </div>
 
-      {/* AI Engine & Provider Architecture */}
+      {/* Demo service and privacy note */}
       <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-9 h-9 rounded-xl bg-[#ECFDF3] flex items-center justify-center text-[#12B76A] border border-[#A6F4C5]">
@@ -110,10 +97,10 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
           </div>
           <div>
             <h2 className="text-sm sm:text-base font-extrabold text-[#10243A]">
-              AI Provider Integration Layer
+              About Saathi
             </h2>
             <p className="text-xs text-[#667085]">
-              Provider-agnostic service layer with zero-key fallback guarantee
+              This demo uses sample shop information to answer questions.
             </p>
           </div>
         </div>
@@ -123,43 +110,16 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
             <span className="w-2.5 h-2.5 rounded-full bg-[#12B76A] animate-pulse"></span>
             <div>
               <div className="text-xs font-bold text-[#10243A]">
-                Active Engine: {systemStatus?.ai_engine.label || "Deterministic Business Analytics Engine (Local)"}
+                Help service: {systemStatus?.ai_engine.label || "Demo shop helper"}
               </div>
               <div className="text-[11px] text-[#475467] mt-0.5">
-                Model: {systemStatus?.ai_engine.model || "Local Analytics Engine v1.0"}
+                It does not access a live Paytm merchant account.
               </div>
             </div>
           </div>
-
-          <span className="px-2.5 py-1 rounded-lg bg-white border border-[#B9E6FE] text-xs font-bold text-[#002970]">
-            Fully Operational
-          </span>
         </div>
-
-        {/* Optional Live Key Input */}
-        <div className="space-y-3 pt-2">
-          <label className="text-xs font-bold text-[#667085] uppercase tracking-wider flex items-center gap-1.5">
-            <Key className="w-3.5 h-3.5 text-[#98A2B3]" />
-            <span>Optional Live Gemini / OpenAI Key (For live cloud LLM testing)</span>
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="password"
-              value={geminiKey}
-              onChange={(e) => setGeminiKey(e.target.value)}
-              placeholder="Enter GEMINI_API_KEY or OPENAI_API_KEY (Optional)"
-              className="flex-1 px-4 py-2.5 rounded-xl border border-[#E4EAF1] text-xs font-mono text-[#10243A] focus:outline-none focus:border-[#00BAF2] bg-[#F8FAFC]"
-            />
-            <button
-              onClick={handleSaveKey}
-              className="px-4 py-2.5 rounded-xl bg-[#002970] text-white text-xs font-bold hover:bg-[#081728] transition-colors shadow-xs"
-            >
-              {savedKeyToast ? "Saved!" : "Save Key"}
-            </button>
-          </div>
-          <p className="text-[11px] text-[#667085]">
-            ℹ️ No API key is required. Without a key, Dukaan Saathi AI runs the full deterministic analytics suite locally with 100% precision.
-          </p>
+        <div className="rounded-xl border border-[#FEF0C7] bg-[#FFFCF5] p-4 text-sm leading-relaxed text-[#7A2E0E]">
+          Do not enter passwords, UPI PINs, or API keys in this demo.
         </div>
       </div>
 
@@ -167,10 +127,10 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
       <div className="bg-white rounded-2xl p-6 border border-[#E4EAF1] shadow-fintech-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-sm sm:text-base font-extrabold text-[#10243A]">
-            Regenerate Demo Data Sandbox
+            Start the demo again
           </h2>
           <p className="text-xs text-[#667085] mt-0.5">
-            Re-seeds 90 days of transactions, inventory levels, and the declining sales demo scenario.
+            Reset the sample sales and stock information to its starting point.
           </p>
         </div>
 
@@ -179,7 +139,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FEF3F2] hover:bg-[#FEE4E2] text-[#B42318] font-bold text-xs border border-[#FECDCA] transition-colors shadow-xs"
         >
           <RotateCcw className="w-4 h-4" />
-          <span>Regenerate 90-Day Ledger</span>
+          <span>Reset demo data</span>
         </button>
       </div>
 

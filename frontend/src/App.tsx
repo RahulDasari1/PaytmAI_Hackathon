@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
-import { JudgeDemoBanner } from './components/JudgeDemoBanner';
 import { VoiceSpeakerModal } from './components/VoiceSpeakerModal';
-import { OverviewDashboard } from './pages/OverviewDashboard';
+import { MerchantHomePage } from './pages/MerchantHomePage';
 import { AICopilotPage } from './pages/AICopilotPage';
 import { SalesAnalyticsPage } from './pages/SalesAnalyticsPage';
 import { CustomerInsightsPage } from './pages/CustomerInsightsPage';
@@ -13,6 +12,7 @@ import { BusinessImpactPage } from './pages/BusinessImpactPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { Language, SystemStatus } from './types';
 import { api } from './services/api';
+import { getT } from './i18n';
 import { 
   LayoutDashboard, 
   Bot, 
@@ -30,11 +30,8 @@ import {
 export function App() {
   const [currentTab, setCurrentTab] = useState<string>('overview');
   const [language, setLanguage] = useState<Language>('en');
+  const t = getT(language);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
-
-  // Judge 3-minute guided demo
-  const [isJudgeDemoActive, setIsJudgeDemoActive] = useState<boolean>(true);
-  const [judgeDemoStep, setJudgeDemoStep] = useState<number>(1);
 
   // Paytm Soundbox simulator modal
   const [isSoundboxModalOpen, setIsSoundboxModalOpen] = useState<boolean>(false);
@@ -49,6 +46,10 @@ export function App() {
     loadSystemStatus();
     loadCriticalCount();
   }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = language === 'hi' ? 'hi-IN' : language === 'te' ? 'te-IN' : 'en-IN';
+  }, [language]);
 
   const loadSystemStatus = async () => {
     try {
@@ -78,23 +79,6 @@ export function App() {
     }
   };
 
-  const handleJudgeDemoStep = (stepNumber: number) => {
-    setJudgeDemoStep(stepNumber);
-    if (stepNumber === 1) {
-      setCurrentTab('overview');
-    } else if (stepNumber === 2) {
-      setCurrentTab('copilot');
-      setCopilotInitialQuery('Why did my sales decrease this week?');
-    } else if (stepNumber === 3) {
-      setCurrentTab('sales');
-    } else if (stepNumber === 4) {
-      setCurrentTab('campaigns');
-      setNavigationContext({ objective: 'EVENING_FOOTFALL_BOOST' });
-    } else if (stepNumber === 5) {
-      setCurrentTab('inventory');
-    }
-  };
-
   const handleResetDemo = async () => {
     if (window.confirm("Are you sure you want to regenerate the 90-day demo dataset for Sharma General Store?")) {
       try {
@@ -117,21 +101,8 @@ export function App() {
         language={language}
         onLanguageChange={setLanguage}
         systemStatus={systemStatus}
-        onResetDemo={handleResetDemo}
         onOpenSoundboxModal={() => setIsSoundboxModalOpen(true)}
-        onToggleJudgeDemo={() => setIsJudgeDemoActive(!isJudgeDemoActive)}
-        isJudgeDemoActive={isJudgeDemoActive}
       />
-
-      {/* Optional Judge Demo Walkthrough Banner */}
-      {isJudgeDemoActive && (
-        <JudgeDemoBanner
-          currentStep={judgeDemoStep}
-          onSelectStep={handleJudgeDemoStep}
-          onClose={() => setIsJudgeDemoActive(false)}
-          language={language}
-        />
-      )}
 
       {/* Main Container */}
       <div className="flex-1 flex max-w-7xl w-full mx-auto">
@@ -149,7 +120,7 @@ export function App() {
         {/* Dynamic Page Content */}
         <main className="flex-1 p-3.5 sm:p-5 lg:p-6 overflow-y-auto max-w-full pb-20 md:pb-8">
           {currentTab === 'overview' && (
-            <OverviewDashboard language={language} onNavigate={handleNavigate} />
+            <MerchantHomePage language={language} onNavigate={handleNavigate} />
           )}
           {currentTab === 'copilot' && (
             <AICopilotPage
@@ -189,11 +160,10 @@ export function App() {
       {/* Mobile-First Bottom Navigation Bar for Smart Devices */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E4EAF1] flex justify-around items-center py-2 px-1 shadow-fintech-lg">
         {[
-          { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-          { id: 'copilot', label: 'Copilot', icon: Bot, isHighlight: true },
-          { id: 'sales', label: 'Sales', icon: TrendingUp },
-          { id: 'campaigns', label: 'Campaigns', icon: Megaphone },
-          { id: 'inventory', label: 'Inventory', icon: Package, hasBadge: criticalCount > 0 },
+          { id: 'overview', label: t.navHome, icon: LayoutDashboard },
+          { id: 'copilot', label: t.navCopilot, icon: Bot, isHighlight: true },
+          { id: 'inventory', label: t.navInventory, icon: Package, hasBadge: criticalCount > 0 },
+          { id: 'campaigns', label: t.navCampaigns, icon: Megaphone },
         ].map((item) => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;
@@ -222,26 +192,32 @@ export function App() {
           className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[#667085]`}
         >
           <MoreHorizontal className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">More</span>
+          <span className="text-[10px] mt-0.5">{t.navMore}</span>
         </button>
       </div>
 
       {/* Mobile 'More' Drawer Modal */}
       {isMobileMoreOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex flex-col justify-end">
-          <div className="bg-white rounded-t-3xl p-5 space-y-4 border-t border-[#E4EAF1] animate-in slide-in-from-bottom">
+          <div
+            className="bg-white rounded-t-3xl p-5 space-y-4 border-t border-[#E4EAF1] animate-in slide-in-from-bottom"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-more-title"
+          >
             <div className="flex items-center justify-between pb-3 border-b border-[#E4EAF1]">
-              <span className="text-xs font-bold text-[#10243A] uppercase tracking-wider">Additional Navigation</span>
-              <button onClick={() => setIsMobileMoreOpen(false)} className="p-1 text-[#667085]">
+              <span id="mobile-more-title" className="text-sm font-bold text-[#10243A]">{t.navMoreTools}</span>
+              <button onClick={() => setIsMobileMoreOpen(false)} aria-label={t.navClose} className="p-2 text-[#667085]">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-1">
               {[
-                { id: 'customers', label: 'Customer Insights', icon: Users },
-                { id: 'impact', label: 'Business Impact & Value', icon: Award },
-                { id: 'settings', label: 'Settings & Store Profile', icon: Settings },
+                { id: 'sales', label: t.navSales, icon: TrendingUp },
+                { id: 'customers', label: t.navCustomers, icon: Users },
+                { id: 'impact', label: t.navImpact, icon: Award },
+                { id: 'settings', label: t.navSettings, icon: Settings },
               ].map((m) => {
                 const MIcon = m.icon;
                 return (
@@ -251,7 +227,7 @@ export function App() {
                       setCurrentTab(m.id);
                       setIsMobileMoreOpen(false);
                     }}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl text-left text-xs font-bold text-[#344054] hover:bg-[#F8FAFC]"
+                    className="w-full flex items-center gap-3 p-3 rounded-xl text-left text-sm font-semibold text-[#344054] hover:bg-[#F8FAFC]"
                   >
                     <MIcon className="w-4 h-4 text-[#002970]" />
                     <span>{m.label}</span>
@@ -265,10 +241,10 @@ export function App() {
                 setIsMobileMoreOpen(false);
                 setIsSoundboxModalOpen(true);
               }}
-              className="w-full py-2.5 rounded-xl bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5] font-bold text-xs flex items-center justify-center gap-2"
+              className="w-full min-h-11 rounded-xl bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5] font-bold text-sm flex items-center justify-center gap-2"
             >
               <Volume2 className="w-4 h-4 text-[#12B76A]" />
-              <span>Simulate Paytm Soundbox Audio</span>
+              <span>{t.soundboxVoiceBtn}</span>
             </button>
           </div>
         </div>

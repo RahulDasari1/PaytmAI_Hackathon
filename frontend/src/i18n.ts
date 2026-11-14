@@ -4,18 +4,23 @@ export const translations = {
   en: {
     appTitle: "Dukaan Saathi AI",
     tagline: "Your business. Understood. Your next move. Simplified.",
+    navHome: "Home",
+    navMore: "More",
+    navClose: "Close",
+    navMoreTools: "More tools",
     storeName: "Sharma General Store",
     storeSubtitle: "Kirana & Daily Needs • Sector 15 Noida",
+    demoNotice: "Demo only: shop numbers are sample data. Offers are not sent and stock changes do not contact suppliers.",
     soundboxActive: "Paytm Soundbox Active",
     demoBadge: "Paytm Sandbox Demo",
     navOverview: "Overview Dashboard",
-    navCopilot: "AI Business Copilot",
-    navSales: "Sales Analytics",
-    navCustomers: "Customer Insights",
-    navCampaigns: "Marketing Campaigns",
-    navInventory: "Inventory Assistant",
-    navImpact: "Business Impact & Value",
-    navSettings: "Settings & Profile",
+    navCopilot: "Ask Saathi",
+    navSales: "Sales",
+    navCustomers: "Customers",
+    navCampaigns: "Offers",
+    navInventory: "Stock",
+    navImpact: "About",
+    navSettings: "Settings",
     
     // KPI Cards
     totalSales: "Total Sales Revenue",
@@ -57,7 +62,7 @@ export const translations = {
     simulateReorderBtn: "Place Reorder",
 
     // Campaigns
-    createCampaignTitle: "Marketing Campaign Studio",
+    createCampaignTitle: "Create an offer",
     selectObjective: "Campaign Objective",
     targetAudience: "Audience Segment",
     channel: "Channel",
@@ -67,23 +72,28 @@ export const translations = {
     copiedToast: "Message copied to clipboard!",
 
     // Audio soundbox
-    soundboxVoiceBtn: "Simulate Soundbox Audio"
+    soundboxVoiceBtn: "Hear a voice sample"
   },
   hi: {
     appTitle: "दुकान साथी AI",
     tagline: "आपका व्यापार, आपकी भाषा में। अगला कदम, बिल्कुल आसान।",
+    navHome: "होम",
+    navMore: "और",
+    navClose: "बंद करें",
+    navMoreTools: "और विकल्प",
     storeName: "शर्मा जनरल स्टोर",
     storeSubtitle: "किराना एवं दैनिक आवश्यकताएं • सेक्टर 15 नोएडा",
+    demoNotice: "यह डेमो है: दुकान का डेटा नमूना है। ऑफ़र नहीं भेजे जाते और स्टॉक बदलने से सप्लायर से संपर्क नहीं होता।",
     soundboxActive: "पेटीएम साउंडबॉक्स सक्रिय",
     demoBadge: "पेटीएम सैंडबॉक्स डेमो",
     navOverview: "डैशबोर्ड सारांश",
-    navCopilot: "AI व्यापार सलाहकार",
-    navSales: "बिक्री विश्लेषण",
-    navCustomers: "ग्राहक अंतर्दृष्टि",
-    navCampaigns: "मार्केटिंग अभियान",
-    navInventory: "स्टॉक एवं इन्वेंटरी",
-    navImpact: "व्यापार प्रभाव व मूल्य",
-    navSettings: "सेटिंग्स व प्रोफाइल",
+    navCopilot: "साथी से पूछें",
+    navSales: "बिक्री",
+    navCustomers: "ग्राहक",
+    navCampaigns: "ऑफ़र",
+    navInventory: "स्टॉक",
+    navImpact: "जानकारी",
+    navSettings: "सेटिंग्स",
 
     // KPI Cards
     totalSales: "कुल बिक्री (राजस्व)",
@@ -125,7 +135,7 @@ export const translations = {
     simulateReorderBtn: "रीऑर्डर करें",
 
     // Campaigns
-    createCampaignTitle: "मार्केटिंग कैंपेन स्टूडियो",
+    createCampaignTitle: "ऑफ़र बनाएँ",
     selectObjective: "अभियान का उद्देश्य",
     targetAudience: "लक्षित ग्राहक वर्ग",
     channel: "माध्यम",
@@ -135,23 +145,28 @@ export const translations = {
     copiedToast: "संदेश क्लिपबोर्ड पर कॉपी हो गया!",
 
     // Audio soundbox
-    soundboxVoiceBtn: "साउंडबॉक्स आवाज़ सुनें"
+    soundboxVoiceBtn: "आवाज़ का नमूना सुनें"
   },
   te: {
     appTitle: "దుకాణ్ సాథీ AI",
     tagline: "మీ వ్యాపారం. మీ నియంత్రణలో. తదుపరి నిర్ణయం, అత్యంత సులభం.",
+    navHome: "హోమ్",
+    navMore: "మరిన్ని",
+    navClose: "మూసివేయండి",
+    navMoreTools: "మరిన్ని ఎంపికలు",
     storeName: "శర్మ జనరల్ స్టోర్",
     storeSubtitle: "కిరాణా & నిత్యావసరాలు • సెక్టార్ 15 నోయిడా",
+    demoNotice: "ఇది డెమో మాత్రమే: దుకాణం వివరాలు నమూనా డేటా. ఆఫర్లు పంపబడవు; స్టాక్ మార్పులు సరఫరాదారులను సంప్రదించవు.",
     soundboxActive: "పేటీఎం సౌండ్‌బాక్స్ ఆక్టివ్",
     demoBadge: "పేటీఎం శాండ్‌బాక్స్ డెమో",
     navOverview: "ఓవర్‌వ్యూ డ్యాష్‌బోర్డ్",
-    navCopilot: "AI బిజినెస్ కోపైలట్",
-    navSales: "విక్రయాల విశ్లేషణ",
-    navCustomers: "కస్టమర్ అంతర్దృష్టులు",
-    navCampaigns: "మార్కెటింగ్ క్యాంపెయిన్లు",
-    navInventory: "ఇన్వెంటరీ సహాయకుడు",
-    navImpact: "వ్యాపార ప్రభావం & విలువ",
-    navSettings: "సెట్టింగ్‌లు & ప్రొఫైల్",
+    navCopilot: "సాథీని అడగండి",
+    navSales: "అమ్మకాలు",
+    navCustomers: "కస్టమర్లు",
+    navCampaigns: "ఆఫర్లు",
+    navInventory: "స్టాక్",
+    navImpact: "సమాచారం",
+    navSettings: "సెట్టింగులు",
 
     // KPI Cards
     totalSales: "మొత్తం అమ్మకాల ఆదాయం",
@@ -193,7 +208,7 @@ export const translations = {
     simulateReorderBtn: "రీ-ఆర్డర్ చేయండి",
 
     // Campaigns
-    createCampaignTitle: "మార్కెటింగ్ క్యాంపెయిన్ స్టూడియో",
+    createCampaignTitle: "ఆఫర్ చేయండి",
     selectObjective: "క్యాంపెయిన్ లక్ష్యం",
     targetAudience: "కస్టమర్ విభాగం",
     channel: "ఛానల్",
@@ -203,7 +218,7 @@ export const translations = {
     copiedToast: "సందేశం కాపీ చేయబడింది!",
 
     // Audio soundbox
-    soundboxVoiceBtn: "సౌండ్‌బాక్స్ వాయిస్ వినండి"
+    soundboxVoiceBtn: "వాయిస్ నమూనా వినండి"
   }
 };
 

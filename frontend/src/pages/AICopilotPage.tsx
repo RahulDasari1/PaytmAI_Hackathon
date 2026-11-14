@@ -5,18 +5,9 @@ import {
   Sparkles, 
   Volume2, 
   ArrowRight, 
-  TrendingDown, 
-  TrendingUp, 
-  Package, 
-  Megaphone,
+  Mic,
+  MicOff,
   User,
-  ShieldCheck,
-  Calendar,
-  Layers,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
-  Info
 } from 'lucide-react';
 import { ChatMessage, Language } from '../types';
 import { getT } from '../i18n';
@@ -29,6 +20,45 @@ interface AICopilotPageProps {
   initialQuery?: string;
 }
 
+interface SpeechRecognitionResultEvent extends Event {
+  results: ArrayLike<ArrayLike<{ transcript: string }>>;
+  resultIndex: number;
+}
+
+interface SpeechRecognitionLike {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onresult: ((event: SpeechRecognitionResultEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+
+const voiceCopy: Record<Language, { listening: string; unsupported: string; error: string; heard: string }> = {
+  en: {
+    listening: 'Listening… speak now.',
+    unsupported: 'Voice input is not available in this browser. You can type your question instead.',
+    error: 'Could not hear you. Please allow microphone access and try again.',
+    heard: 'I heard:'
+  },
+  hi: {
+    listening: 'सुन रहा हूँ… अब बोलें।',
+    unsupported: 'इस ब्राउज़र में आवाज़ से लिखना उपलब्ध नहीं है। आप सवाल टाइप कर सकते हैं।',
+    error: 'आपकी आवाज़ सुनाई नहीं दी। माइक की अनुमति देकर फिर कोशिश करें।',
+    heard: 'आपने कहा:'
+  },
+  te: {
+    listening: 'వింటున్నాను… ఇప్పుడు మాట్లాడండి.',
+    unsupported: 'ఈ బ్రౌజర్‌లో వాయిస్ ఇన్‌పుట్ లేదు. మీ ప్రశ్నను టైప్ చేయవచ్చు.',
+    error: 'మీ మాట వినిపించలేదు. మైక్ అనుమతించి మళ్లీ ప్రయత్నించండి.',
+    heard: 'మీరు చెప్పింది:'
+  }
+};
+
 export const AICopilotPage: React.FC<AICopilotPageProps> = ({
   language,
   onNavigate,
@@ -40,17 +70,19 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
   const [inputText, setInputText] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [activeEvidence, setActiveEvidence] = useState<any>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceStatus, setVoiceStatus] = useState('');
   const chatBottomRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   useEffect(() => {
     loadSuggestions(language);
     if (messages.length === 0) {
       const welcomeContent = language === 'hi'
-        ? "नमस्ते शर्मा जी! मैं आपका **दुकान साथी AI** सलाहकार हूँ।\n\nआप मुझसे बिक्री में गिरावट, नए ऑफर्स, स्टॉक खत्म होने का समय या ग्राहकों को वापस लाने के तरीके पूछ सकते हैं। नीचे दिए गए सुझावों में से चुनें या अपना प्रश्न टाइप करें।"
+        ? "नमस्ते शर्मा जी! मैं आपका दुकान साथी हूँ।\n\nबिक्री, स्टॉक या ग्राहकों के बारे में पूछें। नीचे दिए सवाल चुनें या अपना सवाल लिखें।"
         : language === 'te'
-        ? "నమస్కారం శర్మ గారూ! నేను మీ **దుకాణ్ సాథీ AI** వ్యాపార సహాయకుడిని.\n\nమీరు మీ విక్రయాల మార్పులు, స్టాక్ అవసరాలు లేదా ప్రచార ఆఫర్ల గురించి నన్ను అడగవచ్చు. క్రింద ఉన్న ప్రశ్నలను ఎంచుకోండి లేదా మీ సందేశాన్ని టైప్ చేయండి."
-        : "Namaste Sharma ji! I am **Dukaan Saathi AI**, your dedicated business growth advisor.\n\nI analyze your transaction ledger to explain why footfall changed, predict stock depletion, and draft high-conversion promotions. Choose a query below or ask anything about your shop!";
+        ? "నమస్కారం శర్మ గారూ! నేను మీ దుకాణ్ సాథీని.\n\nఅమ్మకాలు, స్టాక్ లేదా కస్టమర్ల గురించి అడగండి. కింద ఉన్న ప్రశ్నను ఎంచుకోండి లేదా మీ ప్రశ్నను టైప్ చేయండి."
+        : "Namaste Sharma ji! I am your Dukaan Saathi.\n\nAsk me about sales, stock or customers. Choose a question below, type your own, or tap the mic to speak.";
 
       setMessages([
         {
@@ -112,14 +144,6 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
       };
 
       setMessages(prev => [...prev, assistantMsg]);
-      if (res.tool_data) {
-        setActiveEvidence({
-          tool: res.tool_called,
-          data: res.tool_data,
-          action: res.recommended_action,
-          cta_label: res.cta_label
-        });
-      }
     } catch (err) {
       console.error('Copilot request failed:', err);
       setMessages(prev => [
@@ -136,8 +160,57 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
     }
   };
 
+  const handleVoiceInput = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    const speechWindow = window as Window & {
+      SpeechRecognition?: SpeechRecognitionConstructor;
+      webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    };
+    const SpeechRecognition = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setVoiceStatus(voiceCopy[language].unsupported);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = language === 'hi' ? 'hi-IN' : language === 'te' ? 'te-IN' : 'en-IN';
+    recognition.interimResults = false;
+    recognition.continuous = false;
+    recognition.onresult = (event) => {
+      const transcript = event.results[event.resultIndex]?.[0]?.transcript?.trim();
+      if (transcript) {
+        setInputText(transcript);
+        setVoiceStatus(`${voiceCopy[language].heard} ${transcript}`);
+      }
+    };
+    recognition.onerror = () => {
+      setVoiceStatus(voiceCopy[language].error);
+    };
+    recognition.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
+    recognitionRef.current = recognition;
+    setVoiceStatus(voiceCopy[language].listening);
+    setIsListening(true);
+    try {
+      recognition.start();
+    } catch (error) {
+      console.error('Could not start voice input:', error);
+      setIsListening(false);
+      recognitionRef.current = null;
+      setVoiceStatus(voiceCopy[language].error);
+    }
+  };
+
+  useEffect(() => () => recognitionRef.current?.stop(), []);
+
   return (
-    <div className="h-[calc(100vh-8.5rem)] flex flex-col lg:flex-row gap-5 max-w-7xl mx-auto">
+    <div className="mx-auto flex h-[calc(100dvh-11rem)] min-h-[460px] max-w-4xl flex-col gap-5 pb-3">
       
       {/* Left/Main Column: Conversational Workspace */}
       <div className="flex-1 flex flex-col bg-white rounded-2xl border border-[#E4EAF1] shadow-fintech-xs overflow-hidden">
@@ -150,26 +223,26 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-sm sm:text-base font-extrabold text-[#10243A]">
+                <h1 className="text-base sm:text-lg font-extrabold text-[#10243A]">
                   {t.navCopilot}
                 </h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5] flex items-center gap-1">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-[#ECFDF3] text-[#027A48] border border-[#A6F4C5] flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#12B76A] animate-pulse"></span>
-                  Active Advisor
+                      {language === 'hi' ? 'मदद के लिए तैयार' : language === 'te' ? 'సహాయానికి సిద్ధం' : 'Ready to help'}
                 </span>
               </div>
-              <p className="text-[11px] text-[#667085]">
-                Connected to 90-day transactions, inventory velocity, and customer cohorts
+                  <p className="text-xs text-[#667085]">
+                    {language === 'hi' ? 'बिक्री, स्टॉक और ग्राहकों के बारे में पूछें।' : language === 'te' ? 'అమ్మకాలు, స్టాక్, కస్టమర్ల గురించి అడగండి.' : 'Ask about sales, stock or customers.'}
               </p>
             </div>
           </div>
 
           <button
             onClick={onOpenSoundboxModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#E4EAF1] hover:border-[#002970] text-xs font-bold text-[#344054] hover:text-[#002970] transition-all shadow-xs"
-            title="Simulate Paytm Soundbox audio"
+            className="flex min-h-10 items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-semibold text-[#344054] shadow-xs transition-all hover:border-[#002970] hover:text-[#002970]"
+            title={language === 'hi' ? 'आवाज़ का नमूना सुनें' : language === 'te' ? 'వాయిస్ నమూనా వినండి' : 'Hear a voice sample'}
           >
-            <Volume2 className="w-3.5 h-3.5 text-[#00BAF2]" />
+            <Volume2 className="h-4 w-4 text-[#00BAF2]" aria-hidden="true" />
             <span className="hidden sm:inline">{t.soundboxVoiceBtn}</span>
           </button>
         </div>
@@ -203,22 +276,9 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
                       : 'bg-[#F8FAFC] border border-[#E4EAF1] text-[#1D2939] rounded-tl-none shadow-xs'
                   }`}
                 >
-                  <div className="whitespace-pre-line">
+                  <div className="whitespace-pre-line text-sm leading-7">
                     {msg.content}
                   </div>
-
-                  {/* Tool Execution Tag */}
-                  {msg.tool_called && (
-                    <div className="mt-3 pt-2.5 border-t border-[#E4EAF1] flex items-center justify-between text-[11px] font-semibold text-[#667085]">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#00BAF2]"></span>
-                        <span>Executed: <code className="bg-white px-1.5 py-0.5 rounded border border-[#E4EAF1] text-[#002970] font-mono">{msg.tool_called}</code></span>
-                      </div>
-                      <span className="text-[10px] text-[#027A48] bg-[#ECFDF3] px-1.5 py-0.5 rounded border border-[#A6F4C5]">
-                        Verified Data
-                      </span>
-                    </div>
-                  )}
                 </div>
 
                 {/* Direct Action Card */}
@@ -270,8 +330,8 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
                 <Bot className="w-3.5 h-3.5" />
               </div>
               <div className="p-3.5 rounded-2xl bg-[#F8FAFC] border border-[#E4EAF1] text-xs text-[#667085] flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#00BAF2] animate-ping"></span>
-                <span>Executing analytics tools & inspecting 90-day ledger...</span>
+                    <span className="w-2 h-2 rounded-full bg-[#00BAF2] animate-ping"></span>
+                    <span>{language === 'hi' ? 'आपकी दुकान की जानकारी देख रहा हूँ…' : language === 'te' ? 'మీ దుకాణం వివరాలను చూస్తున్నాను…' : 'Checking your shop update…'}</span>
               </div>
             </div>
           )}
@@ -280,16 +340,16 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
         </div>
 
         {/* Suggested Queries Chips */}
-        <div className="px-4 py-2 bg-[#F8FAFC] border-t border-[#E4EAF1] overflow-x-auto flex items-center gap-2">
-          <span className="text-[10px] font-bold text-[#667085] uppercase tracking-wider shrink-0 flex items-center gap-1">
+        <div className="px-4 py-3 bg-[#F8FAFC] border-t border-[#E4EAF1] overflow-x-auto flex items-center gap-2">
+          <span className="text-xs font-bold text-[#667085] shrink-0 flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-[#00BAF2]" />
-            <span>Suggested:</span>
+            <span>{language === 'hi' ? 'पूछें:' : language === 'te' ? 'అడగండి:' : 'Try asking:'}</span>
           </span>
           {suggestions.slice(0, 4).map((sug, idx) => (
             <button
               key={idx}
               onClick={() => handleSend(sug)}
-              className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white hover:bg-[#EBF7FF] text-[#344054] hover:text-[#002970] border border-[#E4EAF1] hover:border-[#B9E6FE] transition-all whitespace-nowrap shadow-fintech-xs"
+              className="px-3 py-2 rounded-full text-xs font-semibold bg-white hover:bg-[#EBF7FF] text-[#344054] hover:text-[#002970] border border-[#E4EAF1] hover:border-[#B9E6FE] transition-all whitespace-nowrap shadow-fintech-xs"
             >
               {sug}
             </button>
@@ -297,7 +357,10 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
         </div>
 
         {/* Persistent Input Composer */}
-        <div className="p-3.5 bg-white border-t border-[#E4EAF1]">
+        <div className="p-4 bg-white border-t border-[#E4EAF1]">
+          {voiceStatus && (
+            <p className="mb-2 text-sm text-[#475467]" role="status" aria-live="polite">{voiceStatus}</p>
+          )}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -305,6 +368,17 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
             }}
             className="flex items-center gap-2"
           >
+            <button
+              type="button"
+              onClick={handleVoiceInput}
+              aria-label={isListening ? (language === 'hi' ? 'सुनना बंद करें' : language === 'te' ? 'వినడం ఆపండి' : 'Stop listening') : (language === 'hi' ? 'बोलकर सवाल पूछें' : language === 'te' ? 'మాట్లాడి అడగండి' : 'Speak your question')}
+              aria-pressed={isListening}
+              className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#00BAF2] ${
+                isListening ? 'border-[#F04438] bg-[#FEF3F2] text-[#B42318]' : 'border-[#E4EAF1] bg-white text-[#002970] hover:bg-[#F0F9FF]'
+              }`}
+            >
+              {isListening ? <MicOff className="h-5 w-5" aria-hidden="true" /> : <Mic className="h-5 w-5" aria-hidden="true" />}
+            </button>
             <input
               type="text"
               value={inputText}
@@ -316,104 +390,19 @@ export const AICopilotPage: React.FC<AICopilotPageProps> = ({
                   ? "దుకాణ్ సాథీని అడగండి (ఉదా. విక్రయాలు ఎందుకు తగ్గాయి, ఏ స్టాక్ ఆర్డర్ చేయాలి)..."
                   : "Ask Dukaan Saathi (e.g. Why did sales decrease? What should I stock more of?)..."
               }
-              className="flex-1 px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1] focus:border-[#00BAF2] focus:bg-white text-xs sm:text-sm focus:outline-none transition-all placeholder:text-[#98A2B3]"
+              className="min-h-12 flex-1 px-4 py-2.5 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1] focus:border-[#00BAF2] focus:bg-white text-sm focus:outline-none transition-all placeholder:text-[#98A2B3]"
             />
             <button
               type="submit"
               disabled={!inputText.trim() || loading}
-              className="p-2.5 rounded-xl bg-gradient-to-r from-[#002970] to-[#00BAF2] text-white hover:opacity-90 disabled:opacity-40 transition-all shadow-fintech-xs shrink-0"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-[#002970] to-[#00BAF2] text-white hover:opacity-90 disabled:opacity-40 transition-all shadow-fintech-xs"
+              aria-label={t.sendMessage}
             >
               <Send className="w-4 h-4" />
             </button>
           </form>
         </div>
 
-      </div>
-
-      {/* Right Column: Contextual Evidence & Analytics Inspector (Desktop 320px) */}
-      <div className="hidden lg:flex flex-col w-80 bg-white rounded-2xl border border-[#E4EAF1] shadow-fintech-xs p-4 justify-between shrink-0">
-        <div>
-          <div className="flex items-center justify-between pb-3 border-b border-[#E4EAF1] mb-3">
-            <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#002970]" />
-              <h2 className="text-xs font-bold text-[#10243A] uppercase tracking-wider">
-                Ledger Evidence Inspector
-              </h2>
-            </div>
-            <span className="w-2 h-2 rounded-full bg-[#12B76A]"></span>
-          </div>
-
-          {activeEvidence ? (
-            <div className="space-y-3 animate-in fade-in">
-              <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E4EAF1]">
-                <div className="text-[10px] font-bold text-[#667085] uppercase">Active Tool Source</div>
-                <div className="text-xs font-bold text-[#002970] font-mono mt-0.5">{activeEvidence.tool}</div>
-              </div>
-
-              {/* Specific Card based on tool data */}
-              {activeEvidence.tool === 'compare_sales_periods' && (
-                <div className="p-3.5 rounded-xl bg-[#FEF3F2] border border-[#FECDCA] space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-[#B42318]">
-                    <span>Sales Variance</span>
-                    <span>{activeEvidence.data.sales_growth_pct}%</span>
-                  </div>
-                  <div className="text-[11px] text-[#475467] leading-snug">
-                    Recent: ₹{activeEvidence.data.period1?.sales?.toLocaleString()} vs Prior: ₹{activeEvidence.data.period2?.sales?.toLocaleString()}
-                  </div>
-                  <div className="text-[10px] text-[#B42318] font-semibold pt-1 border-t border-[#FECDCA]">
-                    Concentrated in Evening Snacks (-24%)
-                  </div>
-                </div>
-              )}
-
-              {activeEvidence.tool === 'get_customer_insights' && (
-                <div className="p-3.5 rounded-xl bg-[#FFF9EB] border border-[#FEF0C7] space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-[#B54708]">
-                    <span>At-Risk Regulars</span>
-                    <span>{activeEvidence.data.metrics?.at_risk_inactive || 35}</span>
-                  </div>
-                  <div className="text-[11px] text-[#475467] leading-snug">
-                    Lapsed customers with no visit in 15-22 days despite past weekly habits.
-                  </div>
-                </div>
-              )}
-
-              {activeEvidence.tool === 'get_inventory_recommendations' && (
-                <div className="p-3.5 rounded-xl bg-[#FEF3F2] border border-[#FECDCA] space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-[#B42318]">
-                    <span>Critical Stock Risk</span>
-                    <span>Fortune Sunflower Oil</span>
-                  </div>
-                  <div className="text-[11px] text-[#475467] leading-snug">
-                    Estimated 1.6 days of supply left. Stockout risk within 36 hours.
-                  </div>
-                </div>
-              )}
-
-              {activeEvidence.tool === 'get_peak_hours' && (
-                <div className="p-3.5 rounded-xl bg-[#F0F9FF] border border-[#B9E6FE] space-y-2">
-                  <div className="text-xs font-bold text-[#002970]">Peak Window Identified</div>
-                  <div className="text-[11px] text-[#475467]">
-                    Evening: 5:30 PM - 8:30 PM (62% of snacks revenue)
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-10 px-2 space-y-2 text-[#667085]">
-              <Info className="w-8 h-8 mx-auto text-[#98A2B3]" />
-              <p className="text-xs font-medium">
-                Ask a question to see real computed ledger evidence appear in this inspector panel.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom Store Profile Indicator */}
-        <div className="pt-3 border-t border-[#E4EAF1] text-[11px] text-[#667085] flex items-center justify-between">
-          <span>Active Store:</span>
-          <span className="font-bold text-[#10243A]">Sharma General Store</span>
-        </div>
       </div>
 
     </div>
